@@ -50,5 +50,5 @@ void generarDigraph(void) {
                state_name[transiciones[i][j]], event_name[j]);
     }
   }
-  puts("} |  ");
+  puts("}");
 }
