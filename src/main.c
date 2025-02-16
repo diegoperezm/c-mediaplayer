@@ -1,8 +1,8 @@
 #include <raylib.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#define RAYGUI_IMPLEMENTATION
 #include "../include/event_table.h"
 #include "../include/raygui.h"
 #include "../include/state_table.h"
