@@ -1,32 +1,24 @@
+/*
+#include "event_table.h"
+#include "state_table.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "state_table.h" 
-#include "event_table.h"
-
 #define X(state) state,
-typedef enum { 
-  STATE_TABLE
-} State;
+typedef enum { STATE_TABLE } State;
 #undef X
 
 #define X(state) #state,
-char *state_name[] = { 
-  STATE_TABLE
-};
+char *state_name[] = {STATE_TABLE};
 #undef X
 
 #define X(event) event,
-typedef enum { 
-  EVENT_TABLE
-} Event;
+typedef enum { EVENT_TABLE } Event;
 #undef X
 
 #define X(event) #event,
-char *event_name[] = { 
-  EVENT_TABLE
-};
+char *event_name[] = {EVENT_TABLE};
 #undef X
 
 int transiciones[NUM_STATES][NUM_EVENTS] = {
@@ -36,9 +28,7 @@ int transiciones[NUM_STATES][NUM_EVENTS] = {
     {PLAY, -1, -1}     // STOP
 };
 
-
 void generarDigraph(void);
-
 int main(void) { generarDigraph(); }
 
 void generarDigraph(void) {
@@ -52,3 +42,4 @@ void generarDigraph(void) {
   }
   puts("}");
 }
+*/

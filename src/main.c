@@ -1,12 +1,11 @@
-#include "include/raylib.h"
+#include <raylib.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #define RAYGUI_IMPLEMENTATION
-#include "event_table.h"
-#include "include/raygui.h"
-#include "state_table.h"
+#include "../include/event_table.h"
+#include "../include/raygui.h"
+#include "../include/state_table.h"
 
 #define X(state) state,
 typedef enum { STATE_TABLE } State;
@@ -47,7 +46,7 @@ int main(void) {
   float col = screenW / 24.0f;
   float btnSize = col * 4;
 
-  InitWindow(screenW, screenH, "Media Player");
+  InitWindow((int)screenW, (int)screenH, "Media Player");
 
   Rectangle btnPlay = {col * 5.0f, screenH / 2.0f, btnSize, btnSize};
   Rectangle btnPause = {col * 9.5f, screenH / 2.0f, btnSize, btnSize};
@@ -83,8 +82,8 @@ int main(void) {
       update(&mediaPlayer, event_stop);
 
     DrawRectangleRec(textBox, LIGHTGRAY);
-    DrawText(mediaPlayer.context.display, textBox.width + col, screenH / 3,
-             20, BLACK);
+    DrawText(mediaPlayer.context.display, (int)(textBox.width + col),
+             (int)(screenH / 3), 20, BLACK);
     EndDrawing();
     // End
   }
