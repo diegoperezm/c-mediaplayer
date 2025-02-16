@@ -6,13 +6,14 @@
 #include "../include/event_table.h"
 #include "../include/raygui.h"
 #include "../include/state_table.h"
+#define INVALID_STATE -1
 
 #define X(state) state,
 typedef enum { STATE_TABLE } State;
 #undef X
 
 #define X(state) #state,
-char *state_name[] = {STATE_TABLE};
+char* state_name[] = { STATE_TABLE };
 #undef X
 
 #define X(event) event,
@@ -20,44 +21,47 @@ typedef enum { EVENT_TABLE } Event;
 #undef X
 
 #define X(event) #event,
-char *event_name[] = {EVENT_TABLE};
+char* event_name[] = { EVENT_TABLE };
 #undef X
 
 typedef struct {
-  int currentState;
+  State currentState;
   struct {
-    const char *display;
+    const char* display;
   } context;
 } MediaPlayer;
 
-int transition_table[NUM_STATES][NUM_EVENTS] = {
-    {PLAY, -1, -1},    // WAITING
-    {-1, PAUSE, STOP}, // PLAY
-    {PLAY, -1, STOP},  // PAUSE
-    {PLAY, -1, -1}     // STOP
+MediaPlayer* transition(MediaPlayer* mediaPlayer, Event event, bool depurar);
+
+State transition_table[NUM_STATES][NUM_EVENTS] = {
+  /*           EVT_PLAY       EVT_PAUSE       EVT_STOP      */
+  [WAITING] = { PLAY, INVALID_STATE, INVALID_STATE }, // WAITING
+  [PLAY] = { INVALID_STATE, PAUSE, STOP },            // PLAY
+  [PAUSE] = { PLAY, INVALID_STATE, STOP },            // PAUSE
+  [STOP] = { PLAY, INVALID_STATE, INVALID_STATE }     // STOP
 };
 
-MediaPlayer *transition(MediaPlayer *mediaPlayer, Event event, bool depurar);
-void update(MediaPlayer *mediaPlayer, Event event);
+void update(MediaPlayer* mediaPlayer, Event event);
 
 int main(void) {
-  float screenW = 600.0f;
-  float screenH = 600.0f;
-  float col = screenW / 24.0f;
-  float btnSize = col * 4;
+  float screenW = 600.0F;
+  float screenH = 600.0F;
+  float col = screenW / 24.0F;
+  float btnSize = col * 4.0F;
 
   InitWindow((int)screenW, (int)screenH, "Media Player");
 
-  Rectangle btnPlay = {col * 5.0f, screenH / 2.0f, btnSize, btnSize};
-  Rectangle btnPause = {col * 9.5f, screenH / 2.0f, btnSize, btnSize};
-  Rectangle btnStop = {col * 14.0f, screenH / 2.0f, btnSize, btnSize};
-  Rectangle Line = {col * 4.5f, screenH / 7.0f, btnSize * 3.5f, btnSize * 3.2f};
-  Rectangle textBox = {screenW / 2.0f - 100, 180, 225, 50};
+  Rectangle btnPlay = { col * 5.0F, screenH / 2.0F, btnSize, btnSize };
+  Rectangle btnPause = { col * 9.5F, screenH / 2.0F, btnSize, btnSize };
+  Rectangle btnStop = { col * 14.0F, screenH / 2.0F, btnSize, btnSize };
+  Rectangle Line = { col * 4.5F, screenH / 7.0F, btnSize * 3.5F,
+                     btnSize * 3.2F };
+  Rectangle textBox = { screenW / 2.0F - 100, 180, 225, 50 };
 
   SetTargetFPS(20);
 
-  MediaPlayer mediaPlayer = {.currentState = WAITING,
-                             .context = {.display = "WAITING"}};
+  MediaPlayer mediaPlayer = { .currentState = WAITING,
+                              .context = { .display = "WAITING" } };
 
   while (!WindowShouldClose()) {
 
@@ -92,10 +96,12 @@ int main(void) {
   return EXIT_SUCCESS;
 }
 
-MediaPlayer *transition(MediaPlayer *mediaPlayer, Event event, bool depurar) {
-  int currentState = mediaPlayer->currentState;
+MediaPlayer* transition(MediaPlayer* mediaPlayer, Event event, bool depurar) {
+  State currentState = mediaPlayer->currentState;
   int input = event;
-  int nextState = transition_table[currentState][input];
+
+  // int nextState = transition_table[currentState][input];
+  State nextState = transition_table[currentState][input];
 
   if (depurar) {
     printf("|%10s|%10s|%10s|\n", state_name[currentState], event_name[input],
@@ -117,12 +123,14 @@ MediaPlayer *transition(MediaPlayer *mediaPlayer, Event event, bool depurar) {
     case STOP:
       mediaPlayer->context.display = "STOP";
       break;
+    default:
+      break;
     }
   }
 
   return mediaPlayer;
 }
 
-void update(MediaPlayer *mediaPlayer, Event event) {
+void update(MediaPlayer* mediaPlayer, Event event) {
   mediaPlayer = transition(mediaPlayer, event, false);
 }
