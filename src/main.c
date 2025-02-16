@@ -31,16 +31,15 @@ typedef struct {
   } context;
 } MediaPlayer;
 
-MediaPlayer* transition(MediaPlayer* mediaPlayer, Event event, bool depurar);
-
 State transition_table[NUM_STATES][NUM_EVENTS] = {
   /*           EVT_PLAY       EVT_PAUSE       EVT_STOP      */
-  [WAITING] = { PLAY, INVALID_STATE, INVALID_STATE }, // WAITING
-  [PLAY] = { INVALID_STATE, PAUSE, STOP },            // PLAY
-  [PAUSE] = { PLAY, INVALID_STATE, STOP },            // PAUSE
-  [STOP] = { PLAY, INVALID_STATE, INVALID_STATE }     // STOP
+  [STATE_WAITING] = { STATE_PLAY, INVALID_STATE, INVALID_STATE }, // WAITING
+  [STATE_PLAY] = { INVALID_STATE, STATE_PAUSE, STATE_STOP },      // PLAY
+  [STATE_PAUSE] = { STATE_PLAY, INVALID_STATE, STATE_STOP },      // PAUSE
+  [STATE_STOP] = { STATE_PLAY, INVALID_STATE, INVALID_STATE }     // STOP
 };
 
+MediaPlayer* transition(MediaPlayer* mediaPlayer, Event event, bool depurar);
 void update(MediaPlayer* mediaPlayer, Event event);
 
 int main(void) {
@@ -60,7 +59,7 @@ int main(void) {
 
   SetTargetFPS(20);
 
-  MediaPlayer mediaPlayer = { .currentState = WAITING,
+  MediaPlayer mediaPlayer = { .currentState = STATE_WAITING,
                               .context = { .display = "WAITING" } };
 
   while (!WindowShouldClose()) {
@@ -100,7 +99,6 @@ MediaPlayer* transition(MediaPlayer* mediaPlayer, Event event, bool depurar) {
   State currentState = mediaPlayer->currentState;
   int input = event;
 
-  // int nextState = transition_table[currentState][input];
   State nextState = transition_table[currentState][input];
 
   if (depurar) {
@@ -108,19 +106,19 @@ MediaPlayer* transition(MediaPlayer* mediaPlayer, Event event, bool depurar) {
            state_name[nextState]);
   }
 
-  if (nextState != -1) {
+  if (nextState != INVALID_STATE) {
     mediaPlayer->currentState = nextState;
     switch (nextState) {
-    case WAITING:
+    case STATE_WAITING:
       mediaPlayer->context.display = "WAITING";
       break;
-    case PLAY:
+    case STATE_PLAY:
       mediaPlayer->context.display = "PLAY";
       break;
-    case PAUSE:
+    case STATE_PAUSE:
       mediaPlayer->context.display = "PAUSE";
       break;
-    case STOP:
+    case STATE_STOP:
       mediaPlayer->context.display = "STOP";
       break;
     default:
