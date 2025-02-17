@@ -1,0 +1,3 @@
+#!/bin/bash
+
+clang main.c gen_graph.c ../src/update.c && ./a.out

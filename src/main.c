@@ -52,6 +52,7 @@ int main(void) {
     DrawRectangleRec(textBox, LIGHTGRAY);
     DrawText(mediaPlayer.context.display, (int)(textBox.width + col),
              (int)(screenH / 3), 20, BLACK);
+
     EndDrawing();
     // End
   }

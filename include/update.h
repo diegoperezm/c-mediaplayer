@@ -23,6 +23,11 @@ typedef enum { STATE_TABLE } State;
 typedef enum { EVENT_TABLE } Event;
 #undef X
 
+extern char* state_name[];
+extern char* event_name[];
+
+extern State transition_table[NUM_STATES][NUM_EVENTS]; 
+
 typedef struct {
   State currentState;
   struct {
