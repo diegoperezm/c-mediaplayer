@@ -31,5 +31,4 @@ typedef struct {
 } MediaPlayer;
 
 void update(MediaPlayer* mediaPlayer, Event event);
-
 #endif // !UPDATE_H
