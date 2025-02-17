@@ -26,7 +26,6 @@ int main(void) {
                               .context = { .display = "WAITING" } };
 
   while (!WindowShouldClose()) {
-
     if (IsKeyPressed(KEY_LEFT))
       update(&mediaPlayer, event_play);
 
@@ -35,6 +34,11 @@ int main(void) {
 
     if (IsKeyPressed(KEY_UP))
       update(&mediaPlayer, event_stop);
+
+    // Begin
+    BeginDrawing();
+    ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
+    GuiPanel(Line, "Media Player");
 
     if (GuiButton(btnPlay, "play"))
       update(&mediaPlayer, event_play);
@@ -45,10 +49,6 @@ int main(void) {
     if (GuiButton(btnStop, "stop"))
       update(&mediaPlayer, event_stop);
 
-    // Begin
-    BeginDrawing();
-    ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
-    GuiPanel(Line, "Media Player");
     DrawRectangleRec(textBox, LIGHTGRAY);
     DrawText(mediaPlayer.context.display, (int)(textBox.width + col),
              (int)(screenH / 3), 20, BLACK);
