@@ -76,7 +76,7 @@ int GuiButton(Rectangle bounds, const char *text);
 
 int GuiToggleGroup(Rectangle bounds, const char *text, int *active);
 
-void update_state(media_player *media_player_ps, Event event);
+void update_state(media_player *media_player, Event event);
 
 int (*return_map(const State state))[SIZE_ROWS][SIZE_COLS];
 

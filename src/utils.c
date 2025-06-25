@@ -20,13 +20,13 @@ State transition_table[NUM_STATES][NUM_EVENTS] = {
     [STATE_STOP] = {STATE_PLAY, INVALID_STATE, INVALID_STATE}
 };
 
-void update_state(media_player *media_player_ps, Event event) {
-    State current_state = media_player_ps->currentState;
+void update_state(media_player *media_player, Event event) {
+    State current_state = media_player->currentState;
     State next_state = transition_table[current_state][event] != INVALID_STATE
                            ? transition_table[current_state][event]
                            : current_state;
 
-    media_player_ps->currentState = next_state;
+    media_player->currentState = next_state;
 }
 
 int (*return_map(const State state))[SIZE_ROWS][SIZE_COLS] {
