@@ -40,11 +40,13 @@ file(GLOB SOURCES "src/*.c")
 include_directories(/Library/Frameworks/GStreamer.framework/Headers)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -F/Library/Frameworks -framework GStreamer")
 
-set(CMAKE_C_FLAGS_DEBUG "-std=c99 -g3 -O0")
+set(CMAKE_C_FLAGS_DEBUG "-std=c99 -g -O0 -fsanitize=address,undefined")
 set(CMAKE_C_FLAGS_RELEASE  "-std=c99")
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(EXECUTABLE_NAME "debug_cmediaplayer")
+    set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=address")
+
 elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
     set(EXECUTABLE_NAME "release_cmediaplayer")
 else()

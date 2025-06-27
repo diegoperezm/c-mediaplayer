@@ -61,7 +61,7 @@ int (*return_map(const State state))[SIZE_ROWS][SIZE_COLS] {
     }
 }
 
-void grid_layout(media_player *media_player) {
+void grid_layout(media_player *media_player, GstElement *pipeline ) {
     const float width = (float) GetScreenWidth();
     const float height = (float) GetScreenHeight();
     const float cell_width = width / GRID_COLS;
@@ -85,6 +85,7 @@ void grid_layout(media_player *media_player) {
                 case EL_BTN_PLAY:
                     if (GuiButton((Rectangle){cell.x, cell.y, cell.width, cell.height},
                                   "PLAY")) {
+                        gst_element_set_state(pipeline, GST_STATE_PLAYING);
                         update_state(media_player, event_play);
                     }
                     break;
@@ -92,6 +93,7 @@ void grid_layout(media_player *media_player) {
                 case EL_BTN_PAUSE:
                     if (GuiButton((Rectangle){cell.x, cell.y, cell.width, cell.height},
                                   "PAUSE")) {
+                        gst_element_set_state(pipeline, GST_STATE_PAUSED);
                         update_state(media_player, event_pause);
                     }
                     break;
@@ -114,3 +116,26 @@ void grid_layout(media_player *media_player) {
         }
     }
 }
+
+GstElement* create_audio_pipeline(const char* filename)
+{
+    gchar *uri = gst_filename_to_uri(filename, NULL);
+    if (!uri) {
+        g_printerr("not converted to uri\n");
+        return NULL;
+    }
+
+    GstElement *pipeline = gst_element_factory_make("playbin", "player");
+
+    if (!pipeline) {
+        g_printerr("failed to create playbin\n");
+        g_free(uri);
+        return NULL;
+    }
+
+    g_object_set(pipeline, "uri", uri, "flags", 2, NULL);
+    g_free(uri);
+
+    return pipeline;
+}
+

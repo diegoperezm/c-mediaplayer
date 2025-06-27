@@ -1,6 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 #include <raylib.h>
+#include <gst/gst.h>
 
 #define GRID_COLS 12.0F
 #define GRID_ROWS 12.0F
@@ -80,6 +81,8 @@ void update_state(media_player *media_player, Event event);
 
 int (*return_map(const State state))[SIZE_ROWS][SIZE_COLS];
 
-void grid_layout(media_player *media_player_ps);
+void grid_layout(media_player *media_player, GstElement *pipeline);
+
+GstElement* create_audio_pipeline(const char* filename);
 
 #endif
