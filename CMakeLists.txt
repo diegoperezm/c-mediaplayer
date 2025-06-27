@@ -7,7 +7,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 message(STATUS "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
 
-if(NOT DEFINED CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYP STREQUAL "")
+if(NOT DEFINED CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
    set(CMAKE_BUILD_TYPE Release)
 endif ()
 
@@ -37,7 +37,10 @@ message(STATUS "raylib downloaded to: ${raylib_SOURCE_DIR}")
 include_directories(include)
 file(GLOB SOURCES "src/*.c")
 
-set(CMAKE_C_FLAGS_DEBUG "-std=c99 \ -g")
+include_directories(/Library/Frameworks/GStreamer.framework/Headers)
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -F/Library/Frameworks -framework GStreamer")
+
+set(CMAKE_C_FLAGS_DEBUG "-std=c99 -g3 -O0")
 set(CMAKE_C_FLAGS_RELEASE  "-std=c99")
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
