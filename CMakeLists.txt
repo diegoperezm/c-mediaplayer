@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.31)
+cmake_minimum_required(VERSION 3.0)
 project(cmediaplayer C)
 
 set(CMAKE_C_STANDARD 99)
@@ -37,8 +37,14 @@ message(STATUS "raylib downloaded to: ${raylib_SOURCE_DIR}")
 include_directories(include)
 file(GLOB SOURCES "src/*.c")
 
-include_directories(/Library/Frameworks/GStreamer.framework/Headers)
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -F/Library/Frameworks -framework GStreamer")
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0 gstreamer-base-1.0)
+include_directories(${GSTREAMER_INCLUDE_DIRS})
+link_directories(${GSTREAMER_LIBRARY_DIRS})
+add_definitions(${GSTREAMER_CFLAGS_OTHER})
+
+#include_directories(/Library/Frameworks/GStreamer.framework/Headers)
+#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -F/Library/Frameworks -framework GStreamer")
 
 set(CMAKE_C_FLAGS_DEBUG "-std=c99 -g -O0 -fsanitize=address,undefined")
 set(CMAKE_C_FLAGS_RELEASE  "-std=c99")
@@ -55,7 +61,7 @@ endif()
 
 add_executable(${EXECUTABLE_NAME} ${SOURCES})
 target_compile_definitions(${EXECUTABLE_NAME} PRIVATE RAYGUI_IMPLEMENTATION)
-target_link_libraries(${EXECUTABLE_NAME} raylib)
+target_link_libraries(${EXECUTABLE_NAME} raylib ${GSTREAMER_LIBRARIES})
 
 #set(CMAKE_C_FLAGS_DEBUG "-std=c99 \
    #-g3 -Wall -Werror -Wconversion \
