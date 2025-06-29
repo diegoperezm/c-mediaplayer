@@ -95,14 +95,14 @@ void grid_layout(media_player *media_player, GstElement *pipeline, char **file_p
                          if (i%2 == 0) {
                            DrawRectangle(
                              panel_bounds.x, 
-                             (cell_height/2)*(i+1),
+                             panel_bounds.y + ((cell_height/2)*(i+1)),
                              panel_bounds.width,
                              cell_height/2, 
                              Fade(LIGHTGRAY, 0.5f));
                          } else {
                            DrawRectangle(
                              panel_bounds.x,
-                             (cell_height/2)*(i+1),
+                             panel_bounds.y + ((cell_height/2)*(i+1)),
                              panel_bounds.width,
                              cell_height/2,
                              Fade(LIGHTGRAY, 0.3f));
@@ -110,7 +110,7 @@ void grid_layout(media_player *media_player, GstElement *pipeline, char **file_p
                              DrawText(
                              GetFileName(file_paths[i]), 
                              panel_bounds.x  + (cell_height/6),
-                             ((cell_height/2)*(i+1)) + (cell_height/6),
+                             (panel_bounds.y + ((cell_height/2)*(i+1)) + (cell_height/6)),
                              font_size,
                              YELLOW);
                        } 
