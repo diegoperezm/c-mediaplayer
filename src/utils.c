@@ -36,11 +36,11 @@ int (*return_map(const State state))[SIZE_ROWS][SIZE_COLS] {
         {EL_BLANK},
         {EL_BLANK},
         {EL_BLANK},
-        {EL_BLANK, EL_BLANK, EL_BLANK, EL_BLANK, EL_LABEL},
+        {EL_BLANK},
         {EL_BLANK},
         {EL_BLANK, EL_BLANK, EL_BLANK, EL_BLANK, EL_BTN_PLAY, EL_BTN_PAUSE, EL_BTN_STOP},
         {EL_BLANK},
-        {EL_BLANK},
+        {EL_BLANK, EL_BLANK, EL_BLANK, EL_BLANK, EL_LABEL},
         {EL_BLANK},
         {EL_BLANK},
     };
