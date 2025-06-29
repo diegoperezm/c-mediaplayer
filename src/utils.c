@@ -1,5 +1,4 @@
 #include "../include/utils.h"
-
 #define X(state) #state,
 char *state_name[] = {STATE_TABLE};
 #undef X
@@ -33,13 +32,13 @@ int (*return_map(const State state))[SIZE_ROWS][SIZE_COLS] {
     int static map[SIZE_ROWS][SIZE_COLS] = {0};
     int static map_state_waiting[SIZE_ROWS][SIZE_COLS] = {
         {EL_BLANK},
-        {EL_BLANK},
+        {EL_BLANK, EL_DROP_FILES},
         {EL_BLANK},
         {EL_BLANK},
         {EL_BLANK},
         {EL_BLANK, EL_BLANK, EL_BLANK, EL_BLANK, EL_LABEL},
-        {EL_BLANK, EL_BLANK, EL_BLANK, EL_BLANK, EL_BTN_PLAY, EL_BTN_PAUSE, EL_BTN_STOP},
         {EL_BLANK},
+        {EL_BLANK, EL_BLANK, EL_BLANK, EL_BLANK, EL_BTN_PLAY, EL_BTN_PAUSE, EL_BTN_STOP},
         {EL_BLANK},
         {EL_BLANK},
         {EL_BLANK},
@@ -61,12 +60,14 @@ int (*return_map(const State state))[SIZE_ROWS][SIZE_COLS] {
     }
 }
 
-void grid_layout(media_player *media_player, GstElement *pipeline ) {
+void grid_layout(media_player *media_player, GstElement *pipeline, char **file_paths, int file_path_counter) {
+
     const float width = (float) GetScreenWidth();
     const float height = (float) GetScreenHeight();
     const float cell_width = width / GRID_COLS;
     const float cell_height = height / GRID_ROWS;
 
+    int offset = 0;
     const Color font_color = GetColor(GuiGetStyle(0, 2));
     const int font_size = (int)(cell_height/cell_width);
 
@@ -78,9 +79,42 @@ void grid_layout(media_player *media_player, GstElement *pipeline ) {
             const float cell_y = (float) row * cell_height;
             const Rectangle cell = {cell_x, cell_y, cell_width, cell_height};
 
+            Rectangle panel_bounds = { cell_x, cell_y, cell_width*10, cell_height*6};
+            Vector2 scroll        = { 0, 0 };
+            Rectangle content     = { 0, 0, 0, 0 };
+            Rectangle view        = { 0 };  
+
             switch ((*map)[row][col]) {
                 case EL_BLANK:
-                    break;
+                   break;
+                case EL_DROP_FILES:
+                     GuiScrollPanel(panel_bounds,"Files", content, &scroll, &view);
+                       float base_x = panel_bounds.x + 10;
+                       float base_y = panel_bounds.y + 10 - scroll.y;
+                       for (int i = 0; i < file_path_counter; i++) {
+                         if (i%2 == 0) {
+                           DrawRectangle(
+                             panel_bounds.x, 
+                             (cell_height/2)*(i+1),
+                             panel_bounds.width,
+                             cell_height/2, 
+                             Fade(LIGHTGRAY, 0.5f));
+                         } else {
+                           DrawRectangle(
+                             panel_bounds.x,
+                             (cell_height/2)*(i+1),
+                             panel_bounds.width,
+                             cell_height/2,
+                             Fade(LIGHTGRAY, 0.3f));
+                         }
+                             DrawText(
+                             GetFileName(file_paths[i]), 
+                             panel_bounds.x  + (cell_height/6),
+                             ((cell_height/2)*(i+1)) + (cell_height/6),
+                             font_size,
+                             YELLOW);
+                       } 
+                     break;
 
                 case EL_BTN_PLAY:
                     if (GuiButton((Rectangle){cell.x, cell.y, cell.width, cell.height},

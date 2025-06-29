@@ -12,6 +12,9 @@
 #define SIZE_COLS 12
 #define SIZE_ROWS 12
 
+#define MAX_FILEPATH_RECORDED 4096
+#define MAX_FILEPATH_SIZE     2048 
+
 #define  STATE_TABLE \
  X(INVALID_STATE)    \
  X(STATE_WAITING)    \
@@ -45,7 +48,8 @@ typedef enum {
   X(EL_BTN_PLAY)      \
   X(EL_BTN_PAUSE)     \
   X(EL_BTN_STOP)      \
-  X(EL_LABEL)
+  X(EL_LABEL)         \
+  X(EL_DROP_FILES)
 #define X(element) element,
 
 typedef enum {
@@ -61,12 +65,12 @@ typedef struct {
     } context;
 } media_player;
 
+
 int GuiGetStyle(int control, int property);
 
 Color GetColor(unsigned int hexValue);
 
-void DrawText(const char *text, int posX, int posY, int fontSize,
-              Color color);
+void DrawText(const char *text, int posX, int posY, int fontSize, Color color);
 
 int GuiTextBox(Rectangle bounds, char *text, int textSize, bool editMode);
 
@@ -74,15 +78,19 @@ int GuiLabel(Rectangle bounds, const char *text);
 
 int GuiButton(Rectangle bounds, const char *text);
 
-
 int GuiToggleGroup(Rectangle bounds, const char *text, int *active);
+
+int GuiScrollPanel(Rectangle bounds, const char *text, Rectangle content, Vector2 *scroll, Rectangle *view);
 
 void update_state(media_player *media_player, Event event);
 
 int (*return_map(const State state))[SIZE_ROWS][SIZE_COLS];
 
-void grid_layout(media_player *media_player, GstElement *pipeline);
+void grid_layout(media_player *media_player, GstElement *pipeline, char **file_paths, int file_path_counter);
 
 GstElement* create_audio_pipeline(const char* filename);
+
+
+
 
 #endif
