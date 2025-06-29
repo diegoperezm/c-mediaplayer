@@ -62,12 +62,11 @@ int (*return_map(const State state))[SIZE_ROWS][SIZE_COLS] {
 
 void grid_layout(media_player *media_player, GstElement *pipeline, char **file_paths, int file_path_counter) {
 
-    const float width = (float) GetScreenWidth();
+    const float width  = (float) GetScreenWidth();
     const float height = (float) GetScreenHeight();
-    const float cell_width = width / GRID_COLS;
+    const float cell_width  = width  / GRID_COLS;
     const float cell_height = height / GRID_ROWS;
 
-    int offset = 0;
     const Color font_color = GetColor(GuiGetStyle(0, 2));
     const int font_size = (int)(cell_height/cell_width);
 
