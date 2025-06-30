@@ -88,28 +88,26 @@ void grid_layout(media_player *media_player, GstElement *pipeline, char **file_p
                    break;
                 case EL_DROP_FILES:
                      GuiScrollPanel(panel_bounds,"Files", content, &scroll, &view);
-                       float base_x = panel_bounds.x + 10;
-                       float base_y = panel_bounds.y + 10 - scroll.y;
                        for (int i = 0; i < file_path_counter; i++) {
                          if (i%2 == 0) {
                            DrawRectangle(
-                             panel_bounds.x, 
-                             panel_bounds.y + ((cell_height/2)*(i+1)),
-                             panel_bounds.width,
-                             cell_height/2, 
+                             (int)panel_bounds.x,
+                            (int)(panel_bounds.y + (cell_height/2.0f)*((float)i+1)),
+                             (int)panel_bounds.width,
+                             (int)cell_height/2,
                              Fade(LIGHTGRAY, 0.5f));
                          } else {
                            DrawRectangle(
-                             panel_bounds.x,
-                             panel_bounds.y + ((cell_height/2)*(i+1)),
-                             panel_bounds.width,
-                             cell_height/2,
+                             (int)panel_bounds.x,
+                             (int)(panel_bounds.y + (cell_height/2.0f)*((float)i+1)),
+                             (int)panel_bounds.width,
+                             (int)cell_height/2,
                              Fade(LIGHTGRAY, 0.3f));
                          }
                              DrawText(
                              GetFileName(file_paths[i]), 
-                             panel_bounds.x  + (cell_height/6),
-                             (panel_bounds.y + ((cell_height/2)*(i+1)) + (cell_height/6)),
+                             (int) (panel_bounds.x  + (cell_height/6)),
+                             (int)(panel_bounds.y + (cell_height/2)*((float)i+1) + cell_height/6),
                              font_size,
                              YELLOW);
                        } 

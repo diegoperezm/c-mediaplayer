@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.0...3.10)
 project(cmediaplayer C)
 
 set(CMAKE_C_STANDARD 99)
@@ -38,13 +38,18 @@ include_directories(include)
 file(GLOB SOURCES "src/*.c")
 
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0 gstreamer-base-1.0)
-include_directories(${GSTREAMER_INCLUDE_DIRS})
-link_directories(${GSTREAMER_LIBRARY_DIRS})
-add_definitions(${GSTREAMER_CFLAGS_OTHER})
+pkg_check_modules(GSTREAMER  gstreamer-1.0 gstreamer-base-1.0)
 
-#include_directories(/Library/Frameworks/GStreamer.framework/Headers)
-#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -F/Library/Frameworks -framework GStreamer")
+if(GSTREAMER_FOUND)
+  message(STATUS "GStreamer found via pkg-config")
+  include_directories(${GSTREAMER_INCLUDE_DIRS})
+  link_directories(${GSTREAMER_LIBRARY_DIRS})
+  add_definitions(${GSTREAMER_CFLAGS_OTHER})
+else()
+  message(STATUS "GStreamer not found via pkg-config")
+  include_directories(/Library/Frameworks/GStreamer.framework/Headers)
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -F/Library/Frameworks -framework GStreamer")
+endif()
 
 set(CMAKE_C_FLAGS_DEBUG "-std=c99 -g -O0 -fsanitize=address,undefined")
 set(CMAKE_C_FLAGS_RELEASE  "-std=c99")
@@ -67,5 +72,4 @@ target_link_libraries(${EXECUTABLE_NAME} raylib ${GSTREAMER_LIBRARIES})
    #-g3 -Wall -Werror -Wconversion \
    #-Wdouble-promotion -fsanitize=address,undefined \
    #-Wno-unused-parameter -Wno-unused-function")
-
 
