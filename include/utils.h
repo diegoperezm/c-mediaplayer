@@ -13,7 +13,7 @@
 #define SIZE_ROWS 12
 
 #define MAX_FILEPATH_RECORDED 4096
-#define MAX_FILEPATH_SIZE     2048 
+#define MAX_FILEPATH_SIZE     2048
 
 #define  STATE_TABLE \
  X(INVALID_STATE)    \
@@ -21,12 +21,16 @@
  X(STATE_PLAY)       \
  X(STATE_PAUSE)      \
  X(STATE_STOP)       \
+ X(STATE_PREV)       \
+ X(STATE_NEXT)       \
  X(NUM_STATES)
 
 #define EVENT_TABLE \
  X(event_play)      \
  X(event_pause)     \
  X(event_stop)      \
+ X(event_prev)      \
+ X(event_next)      \
  X(NUM_EVENTS)
 
 #define X(state) state,
@@ -45,11 +49,14 @@ typedef enum {
 
 #define ELEMENT_LIST \
   X(EL_BLANK)        \
-  X(EL_BTN_PLAY)      \
-  X(EL_BTN_PAUSE)     \
-  X(EL_BTN_STOP)      \
-  X(EL_LABEL)         \
-  X(EL_DROP_FILES)
+  X(EL_BTN_PLAY)     \
+  X(EL_BTN_PAUSE)    \
+  X(EL_BTN_STOP)     \
+  X(EL_LABEL)        \
+  X(EL_DROP_FILES)   \
+  X(EL_BTN_PREV)     \
+  X(EL_BTN_NEXT)
+
 #define X(element) element,
 
 typedef enum {
@@ -84,13 +91,11 @@ int GuiScrollPanel(Rectangle bounds, const char *text, Rectangle content, Vector
 
 void update_state(media_player *media_player, Event event);
 
-int (*return_map(const State state))[SIZE_ROWS][SIZE_COLS];
+int (*return_map(media_player *media_player))[SIZE_ROWS][SIZE_COLS];
 
 void grid_layout(media_player *media_player, GstElement *pipeline, char **file_paths, int file_path_counter);
 
-GstElement* create_audio_pipeline(const char* filename);
-
-
+GstElement *create_audio_pipeline(const char *filename);
 
 
 #endif
