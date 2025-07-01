@@ -55,7 +55,8 @@ typedef enum {
   X(EL_LABEL)        \
   X(EL_DROP_FILES)   \
   X(EL_BTN_PREV)     \
-  X(EL_BTN_NEXT)
+  X(EL_BTN_NEXT)     \
+  X(EL_LYRICS)
 
 #define X(element) element,
 

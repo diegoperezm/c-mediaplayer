@@ -36,7 +36,7 @@ int (*return_map(media_player *media_player))[SIZE_ROWS][SIZE_COLS] {
 
     int static map_state_waiting[SIZE_ROWS][SIZE_COLS] = {
         {EL_BLANK},
-        {EL_BLANK, EL_DROP_FILES},
+        {EL_BLANK, EL_DROP_FILES, EL_BLANK, EL_BLANK, EL_BLANK, EL_LYRICS},
         {EL_BLANK},
         {EL_BLANK},
         {EL_BLANK},
@@ -51,7 +51,7 @@ int (*return_map(media_player *media_player))[SIZE_ROWS][SIZE_COLS] {
 
     int static map_state_play[SIZE_ROWS][SIZE_COLS] = {
         {EL_BLANK},
-        {EL_BLANK, EL_DROP_FILES},
+        {EL_BLANK, EL_DROP_FILES, EL_BLANK, EL_BLANK, EL_BLANK, EL_LYRICS},
         {EL_BLANK},
         {EL_BLANK},
         {EL_BLANK},
@@ -102,13 +102,18 @@ void grid_layout(media_player *media_player, GstElement *pipeline, char **file_p
             const float cell_y = (float) row * cell_height;
             const Rectangle cell = {cell_x, cell_y, cell_width, cell_height};
 
-            Rectangle panel_bounds = {cell_x, cell_y, cell_width * 10, cell_height * 6};
+            Rectangle panel_bounds = {cell_x, cell_y, cell_width * 4, cell_height * 6};
+            Rectangle lyrics_bounds = {cell_x, cell_y, cell_width * 6, cell_height * 7};
+
             Vector2 scroll = {0, 0};
             Rectangle content = {0, 0, 0, 0};
             Rectangle view = {0};
 
             switch ((*map)[row][col]) {
                 case EL_BLANK:
+                    break;
+                case EL_LYRICS:
+                    GuiScrollPanel(lyrics_bounds, "Lyrics", content, &scroll, &view);
                     break;
                 case EL_DROP_FILES:
                     GuiScrollPanel(panel_bounds, "Files", content, &scroll, &view);
