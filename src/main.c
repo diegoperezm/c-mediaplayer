@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
     while (!WindowShouldClose()) {
 
       if(IsFileDropped()) {
-        FilePathList droppedFiles = LoadDroppedFiles(); 
+        const FilePathList droppedFiles = LoadDroppedFiles();
         for(int i = 0 , offset = file_path_counter; i < (int)droppedFiles.count; i++) {
            if(file_path_counter < (MAX_FILEPATH_RECORDED - 1)) {
                TextCopy(file_paths[offset+i], droppedFiles.paths[i]);
