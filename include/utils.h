@@ -1,6 +1,5 @@
 #ifndef UTILS_H
 #define UTILS_H
-//#include <raylib.h>
 #include <gst/gst.h>
 
 #define GRID_COLS 12.0F
