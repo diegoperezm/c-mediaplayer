@@ -42,10 +42,10 @@ int (*return_map(media_player *media_player))[SIZE_ROWS][SIZE_COLS] {
         {EL_BLANK},
         {EL_BLANK},
         {EL_BLANK},
+        {EL_BLANK, EL_BTN_PREV, EL_BTN_PLAY, EL_BTN_STOP, EL_BTN_NEXT},
         {EL_BLANK},
-        {EL_BLANK, EL_BLANK, EL_BLANK, EL_BTN_PREV, EL_BTN_PLAY, EL_BTN_STOP, EL_BTN_NEXT},
         {EL_BLANK},
-        {EL_BLANK, EL_BLANK, EL_BLANK, EL_BLANK, EL_LABEL},
+        {EL_BLANK, EL_LABEL},
         {EL_BLANK},
     };
 
@@ -57,10 +57,10 @@ int (*return_map(media_player *media_player))[SIZE_ROWS][SIZE_COLS] {
         {EL_BLANK},
         {EL_BLANK},
         {EL_BLANK},
+        {EL_BLANK, EL_BTN_PREV, EL_BTN_PAUSE, EL_BTN_STOP, EL_BTN_NEXT},
         {EL_BLANK},
-        {EL_BLANK, EL_BLANK, EL_BLANK, EL_BTN_PREV, EL_BTN_PAUSE, EL_BTN_STOP, EL_BTN_NEXT},
         {EL_BLANK},
-        {EL_BLANK, EL_BLANK, EL_BLANK, EL_BLANK, EL_LABEL},
+        {EL_BLANK, EL_LABEL},
         {EL_BLANK},
     };
 
