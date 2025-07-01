@@ -75,10 +75,8 @@ int (*return_map(media_player *media_player))[SIZE_ROWS][SIZE_COLS] {
         case STATE_STOP:
             return &map_state_waiting;
         case STATE_PREV:
-            update_state(media_player, event_play);
             return &map_state_waiting;
         case STATE_NEXT:
-            update_state(media_player, event_play);
             return &map_state_waiting;
         default:
             return &map;
@@ -167,6 +165,7 @@ void grid_layout(media_player *media_player, GstElement *pipeline, char **file_p
                 case EL_BTN_PREV:
                     if (GuiButton((Rectangle){cell.x, cell.y, cell.width, cell.height}, "PREV")) {
                         update_state(media_player, event_prev);
+                        update_state(media_player, event_play);
                     }
 
                     break;
@@ -174,6 +173,7 @@ void grid_layout(media_player *media_player, GstElement *pipeline, char **file_p
                 case EL_BTN_NEXT:
                     if (GuiButton((Rectangle){cell.x, cell.y, cell.width, cell.height}, "NEXT")) {
                         update_state(media_player, event_next);
+                        update_state(media_player, event_play);
                     }
                     break;
 
