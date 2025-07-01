@@ -12,13 +12,13 @@ char *element_list[] = {ELEMENT_LIST};
 #undef X
 
 State transition_table[NUM_STATES][NUM_EVENTS] = {
-                         /* event_play | event_pause |   event_stop  | event_prev     | event_next */
-    [STATE_WAITING] = {STATE_PLAY,    INVALID_STATE, INVALID_STATE, INVALID_STATE, INVALID_STATE},
-    [STATE_PLAY]    = {INVALID_STATE, STATE_PAUSE,   STATE_STOP,    STATE_PREV,    STATE_NEXT   },
-    [STATE_PAUSE]   = {STATE_PLAY,    INVALID_STATE, STATE_STOP,    STATE_PREV,    STATE_NEXT   },
-    [STATE_STOP]    = {STATE_PLAY,    INVALID_STATE, INVALID_STATE, STATE_PREV,    STATE_NEXT   },
-    [STATE_PREV]    = {STATE_PLAY,    INVALID_STATE, INVALID_STATE, INVALID_STATE, INVALID_STATE},
-    [STATE_NEXT]    = {STATE_PLAY,    INVALID_STATE, INVALID_STATE, INVALID_STATE, INVALID_STATE}
+    /* event_play | event_pause |   event_stop  | event_prev     | event_next */
+    [STATE_WAITING] = {STATE_PLAY, INVALID_STATE, INVALID_STATE, INVALID_STATE, INVALID_STATE},
+    [STATE_PLAY] = {INVALID_STATE, STATE_PAUSE, STATE_STOP, STATE_PREV, STATE_NEXT},
+    [STATE_PAUSE] = {STATE_PLAY, INVALID_STATE, STATE_STOP, STATE_PREV, STATE_NEXT},
+    [STATE_STOP] = {STATE_PLAY, INVALID_STATE, INVALID_STATE, STATE_PREV, STATE_NEXT},
+    [STATE_PREV] = {STATE_PLAY, INVALID_STATE, INVALID_STATE, INVALID_STATE, INVALID_STATE},
+    [STATE_NEXT] = {STATE_PLAY, INVALID_STATE, INVALID_STATE, INVALID_STATE, INVALID_STATE}
 };
 
 void update_state(media_player *media_player, Event event) {
@@ -30,9 +30,10 @@ void update_state(media_player *media_player, Event event) {
     media_player->currentState = next_state;
 }
 
-int (*return_map( media_player *media_player))[SIZE_ROWS][SIZE_COLS] {
+int (*return_map(media_player *media_player))[SIZE_ROWS][SIZE_COLS] {
     const State state = media_player->currentState;
     int static map[SIZE_ROWS][SIZE_COLS] = {0};
+
     int static map_state_waiting[SIZE_ROWS][SIZE_COLS] = {
         {EL_BLANK},
         {EL_BLANK, EL_DROP_FILES},
@@ -42,7 +43,22 @@ int (*return_map( media_player *media_player))[SIZE_ROWS][SIZE_COLS] {
         {EL_BLANK},
         {EL_BLANK},
         {EL_BLANK},
-        {EL_BLANK, EL_BLANK, EL_BLANK, EL_BTN_PREV, EL_BTN_PLAY, EL_BTN_PAUSE, EL_BTN_STOP, EL_BTN_NEXT},
+        {EL_BLANK, EL_BLANK, EL_BLANK, EL_BTN_PREV, EL_BTN_PLAY, EL_BTN_STOP, EL_BTN_NEXT},
+        {EL_BLANK},
+        {EL_BLANK, EL_BLANK, EL_BLANK, EL_BLANK, EL_LABEL},
+        {EL_BLANK},
+    };
+
+    int static map_state_play[SIZE_ROWS][SIZE_COLS] = {
+        {EL_BLANK},
+        {EL_BLANK, EL_DROP_FILES},
+        {EL_BLANK},
+        {EL_BLANK},
+        {EL_BLANK},
+        {EL_BLANK},
+        {EL_BLANK},
+        {EL_BLANK},
+        {EL_BLANK, EL_BLANK, EL_BLANK, EL_BTN_PREV, EL_BTN_PAUSE, EL_BTN_STOP, EL_BTN_NEXT},
         {EL_BLANK},
         {EL_BLANK, EL_BLANK, EL_BLANK, EL_BLANK, EL_LABEL},
         {EL_BLANK},
@@ -53,7 +69,7 @@ int (*return_map( media_player *media_player))[SIZE_ROWS][SIZE_COLS] {
         case STATE_WAITING:
             return &map_state_waiting;
         case STATE_PLAY:
-            return &map_state_waiting;
+            return &map_state_play;
         case STATE_PAUSE:
             return &map_state_waiting;
         case STATE_STOP:
@@ -62,7 +78,7 @@ int (*return_map( media_player *media_player))[SIZE_ROWS][SIZE_COLS] {
             update_state(media_player, event_play);
             return &map_state_waiting;
         case STATE_NEXT:
-            update_state(media_player,event_play);
+            update_state(media_player, event_play);
             return &map_state_waiting;
         default:
             return &map;
