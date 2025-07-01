@@ -1,4 +1,8 @@
+#include <raylib.h>
+#include "../include/raygui.h"
+#include "../include/style_cyber.h"
 #include "../include/utils.h"
+
 #define X(state) #state,
 char *state_name[] = {STATE_TABLE};
 #undef X
@@ -187,6 +191,15 @@ void grid_layout(media_player *media_player, GstElement *pipeline, char **file_p
             }
         }
     }
+}
+
+void setup_raylib() {
+    const int screen_w = 800;
+    const int screen_h = 600;
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+    InitWindow(screen_w, screen_h, "Media Player");
+    SetTargetFPS(30);
+    GuiLoadStyleCyber();
 }
 
 GstElement *create_audio_pipeline(const char *filename) {

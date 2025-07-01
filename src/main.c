@@ -1,11 +1,9 @@
-#include "../include/raygui.h"
-#include "../include/style_cyber.h"
-#include "../include/utils.h"
 #include <raylib.h>
+#include "../include/utils.h"
 #include <stdlib.h>
 #include <unistd.h>
-#include <stdlib.h>
 
+//#include "../include/style_candy.h"
 #ifdef __APPLE__
 #include <TargetConditionals.h>
 #endif
@@ -17,13 +15,9 @@ int main(int argc, char **argv) {
     GstElement *pipeline = create_audio_pipeline(file);
     if (!pipeline) return -1;
 
-    int screen_w = 800;
-    int screen_h = 600;
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-    InitWindow(screen_w, screen_h, "Media Player");
-    SetTargetFPS(30);
-    GuiLoadStyleCyber();
-    const Color BGCOLOR = (GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
+    setup_raylib();
+
+    const Color BGCOLOR = (Color){ 0, 34, 43, 255 };
     media_player media_player = {.currentState = STATE_WAITING};
 
     char *file_paths[MAX_FILEPATH_RECORDED] = {0};

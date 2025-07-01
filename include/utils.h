@@ -1,6 +1,6 @@
 #ifndef UTILS_H
 #define UTILS_H
-#include <raylib.h>
+//#include <raylib.h>
 #include <gst/gst.h>
 
 #define GRID_COLS 12.0F
@@ -74,21 +74,9 @@ typedef struct {
 } media_player;
 
 
-int GuiGetStyle(int control, int property);
+void setup_raylib();
 
-Color GetColor(unsigned int hexValue);
-
-void DrawText(const char *text, int posX, int posY, int fontSize, Color color);
-
-int GuiTextBox(Rectangle bounds, char *text, int textSize, bool editMode);
-
-int GuiLabel(Rectangle bounds, const char *text);
-
-int GuiButton(Rectangle bounds, const char *text);
-
-int GuiToggleGroup(Rectangle bounds, const char *text, int *active);
-
-int GuiScrollPanel(Rectangle bounds, const char *text, Rectangle content, Vector2 *scroll, Rectangle *view);
+GstElement *create_audio_pipeline(const char *filename);
 
 void update_state(media_player *media_player, Event event);
 
@@ -96,7 +84,6 @@ int (*return_map(media_player *media_player))[SIZE_ROWS][SIZE_COLS];
 
 void grid_layout(media_player *media_player, GstElement *pipeline, char **file_paths, int file_path_counter);
 
-GstElement *create_audio_pipeline(const char *filename);
 
 
 #endif
