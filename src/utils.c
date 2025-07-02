@@ -87,7 +87,8 @@ int (*return_map(media_player *media_player))[SIZE_ROWS][SIZE_COLS] {
     }
 }
 
-void grid_layout(media_player *media_player, GstElement *pipeline, char **file_paths, int file_path_counter) {
+void grid_layout(media_player *media_player, gpointer user_data, char **file_paths, int file_path_counter) {
+    CustomData *data = (CustomData *) user_data;
     const float width = (float) GetScreenWidth();
     const float height = (float) GetScreenHeight();
     const float cell_width = width / GRID_COLS;
@@ -145,9 +146,47 @@ void grid_layout(media_player *media_player, GstElement *pipeline, char **file_p
                     break;
 
                 case EL_BTN_PLAY:
-                    if (GuiButton((Rectangle){cell.x, cell.y, cell.width, cell.height},
-                                  "PLAY")) {
-                        gst_element_set_state(pipeline, GST_STATE_PLAYING);
+                    if (GuiButton((Rectangle){cell.x, cell.y, cell.width, cell.height}, "PLAY")) {
+                        if (file_path_counter == 0) {
+                            break;
+                        }
+                        if (data->pipeline) {
+                            GstStateChangeReturn ret = gst_element_set_state(data->pipeline, GST_STATE_PLAYING);
+                            if (ret == GST_STATE_CHANGE_FAILURE) {
+                                g_printerr("Failed to resume playback\n");
+                            } else {
+                                g_print("Resuming playback\n");
+                            }
+                        } else {
+                            data->source = gst_element_factory_make("uridecodebin", "source");
+                            data->sink = gst_element_factory_make("autoaudiosink", "sink");
+                            data->pipeline = gst_pipeline_new("audio-pipeline");
+
+                            if (!data->source || !data->sink || !data->pipeline) {
+                                g_printerr("Error creating GStreamer elements\n");
+                                break;
+                            }
+
+                            gchar *uri = gst_filename_to_uri(file_paths[0], NULL);
+                            if (!uri) {
+                                g_printerr("Error converting path to URI\n");
+                                break;
+                            }
+
+                            g_object_set(data->source, "uri", uri, NULL);
+                            g_free(uri);
+
+                            gst_bin_add_many(GST_BIN(data->pipeline), data->source, data->sink, NULL);
+                            g_signal_connect(data->source, "pad-added", G_CALLBACK(pad_added_handler), user_data);
+
+                            GstStateChangeReturn ret = gst_element_set_state(data->pipeline, GST_STATE_PLAYING);
+                            if (ret == GST_STATE_CHANGE_FAILURE) {
+                                g_printerr("Failed to start playback\n");
+                            } else {
+                                g_print("Starting playback: %s\n", file_paths[0]);
+                            }
+                        }
+
                         update_state(media_player, event_play);
                     }
                     break;
@@ -155,7 +194,9 @@ void grid_layout(media_player *media_player, GstElement *pipeline, char **file_p
                 case EL_BTN_PAUSE:
                     if (GuiButton((Rectangle){cell.x, cell.y, cell.width, cell.height},
                                   "PAUSE")) {
-                        gst_element_set_state(pipeline, GST_STATE_PAUSED);
+                        if (data->pipeline) {
+                            gst_element_set_state(data->pipeline, GST_STATE_PAUSED);
+                        }
                         update_state(media_player, event_pause);
                     }
                     break;
@@ -163,6 +204,14 @@ void grid_layout(media_player *media_player, GstElement *pipeline, char **file_p
                 case EL_BTN_STOP:
                     if (GuiButton((Rectangle){cell.x, cell.y, cell.width, cell.height},
                                   "STOP")) {
+                        if (data->pipeline) {
+                            gst_element_set_state(data->pipeline, GST_STATE_NULL);
+                            gst_object_unref(data->pipeline);
+                            data->pipeline = NULL;
+                            data->source = NULL;
+                            data->sink = NULL;
+                        }
+
                         update_state(media_player, event_stop);
                     }
                     break;
@@ -202,23 +251,80 @@ void setup_raylib() {
     GuiLoadStyleCyber();
 }
 
-GstElement *create_audio_pipeline(const char *filename) {
-    gchar *uri = gst_filename_to_uri(filename, NULL);
-    if (!uri) {
-        g_printerr("not converted to uri\n");
-        return NULL;
+void cleanup_pipeline(CustomData *data) {
+    if (data->pipeline) {
+        gst_element_set_state(data->pipeline, GST_STATE_NULL);
+        gst_object_unref(data->pipeline);
+        data->pipeline = NULL;
+        data->source = NULL; // These become invalid after pipeline cleanup
+        data->sink = NULL;
+    }
+}
+
+/*
+static void pad_added_handler(GstElement *src, GstPad *new_pad, gpointer user_data) {
+    CustomData *data = (CustomData *) user_data;
+
+    if (!data || !GST_IS_ELEMENT(data->sink)) {
+        g_printerr("pad_added_handler: sink no inicializado\n");
+        return;
     }
 
-    GstElement *pipeline = gst_element_factory_make("playbin", "player");
+    GstPad *sink_pad = gst_element_get_static_pad(data->sink, "sink");
 
-    if (!pipeline) {
-        g_printerr("failed to create playbin\n");
-        g_free(uri);
-        return NULL;
+    if (!GST_IS_PAD(sink_pad)) {
+        g_printerr("pad_added_handler: sink_pad no obtenido\n");
+        return;
     }
 
-    g_object_set(pipeline, "uri", uri, "flags", 2, NULL);
-    g_free(uri);
+    if (gst_pad_is_linked(sink_pad)) {
+        g_print("pad ya enlazado\n");
+        gst_object_unref(sink_pad);
+        return;
+    }
 
-    return pipeline;
+    if (gst_pad_link(new_pad, sink_pad) != GST_PAD_LINK_OK) {
+        g_printerr("pad_added_handler: no se pudo enlazar el pad\n");
+    } else {
+        g_print(" pad enlazado correctamente\n");
+    }
+
+    gst_object_unref(sink_pad);
+}
+*/
+static void pad_added_handler(GstElement *src, GstPad *new_pad, gpointer user_data) {
+    CustomData *data = (CustomData *) user_data;
+
+    if (!data || !data->sink) {
+        g_printerr("Invalid data in pad_added_handler\n");
+        return;
+    }
+
+    GstCaps *new_pad_caps = gst_pad_get_current_caps(new_pad);
+    if (!new_pad_caps) {
+        return;
+    }
+
+    GstStructure *new_pad_struct = gst_caps_get_structure(new_pad_caps, 0);
+    const gchar *new_pad_type = gst_structure_get_name(new_pad_struct);
+
+    // Only link audio pads
+    if (!g_str_has_prefix(new_pad_type, "audio/x-raw")) {
+        gst_caps_unref(new_pad_caps);
+        return;
+    }
+
+    gst_caps_unref(new_pad_caps);
+
+    GstPad *sink_pad = gst_element_get_static_pad(data->sink, "sink");
+    if (gst_pad_is_linked(sink_pad)) {
+        gst_object_unref(sink_pad);
+        return;
+    }
+
+    if (gst_pad_link(new_pad, sink_pad) != GST_PAD_LINK_OK) {
+        g_printerr("Failed to link pads\n");
+    }
+
+    gst_object_unref(sink_pad);
 }

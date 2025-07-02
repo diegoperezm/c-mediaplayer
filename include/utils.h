@@ -73,16 +73,25 @@ typedef struct {
 } media_player;
 
 
+typedef struct _CustomData {
+    GstElement *pipeline;
+    GstElement *source;
+    GstElement *sink;
+} CustomData;
+
 void setup_raylib();
 
-GstElement *create_audio_pipeline(const char *filename);
+GstElement *create_audio_pipeline(const char *file_paths);
+
+static void pad_added_handler(GstElement *src, GstPad *new_pad, gpointer user_data);
+void cleanup_pipeline(CustomData *data);
+
 
 void update_state(media_player *media_player, Event event);
 
 int (*return_map(media_player *media_player))[SIZE_ROWS][SIZE_COLS];
 
-void grid_layout(media_player *media_player, GstElement *pipeline, char **file_paths, int file_path_counter);
-
+void grid_layout(media_player *media_player,  gpointer user_data, char **file_paths, int file_path_counter);
 
 
 #endif
