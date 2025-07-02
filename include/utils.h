@@ -77,21 +77,20 @@ typedef struct _CustomData {
     GstElement *pipeline;
     GstElement *source;
     GstElement *sink;
+    int file_path_counter;
+    int current_track_index;
 } CustomData;
 
 void setup_raylib();
 
-GstElement *create_audio_pipeline(const char *file_paths);
-
 static void pad_added_handler(GstElement *src, GstPad *new_pad, gpointer user_data);
-void cleanup_pipeline(CustomData *data);
-
 
 void update_state(media_player *media_player, Event event);
 
 int (*return_map(media_player *media_player))[SIZE_ROWS][SIZE_COLS];
 
-void grid_layout(media_player *media_player,  gpointer user_data, char **file_paths, int file_path_counter);
+void grid_layout(media_player *media_player,  gpointer user_data, char **file_paths);
 
+void load_and_play_track(CustomData * data, char ** file_paths);
 
 #endif

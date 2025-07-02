@@ -15,7 +15,6 @@ int main(int argc, char **argv) {
     media_player media_player = {.currentState = STATE_WAITING};
 
     char *file_paths[MAX_FILEPATH_RECORDED] = {0};
-    int file_path_counter = 0;
 
     for (int i = 0; i < MAX_FILEPATH_RECORDED; i++) {
         file_paths[i] = (char *) RL_CALLOC(MAX_FILEPATH_SIZE, 1);
@@ -23,17 +22,16 @@ int main(int argc, char **argv) {
 
     gst_init(&argc, &argv);
     CustomData data={0};
-
     setup_raylib();
 
     while (!WindowShouldClose()) {
 
         if (IsFileDropped()) {
             const FilePathList droppedFiles = LoadDroppedFiles();
-            for (int i = 0, offset = file_path_counter; i < (int) droppedFiles.count; i++) {
-                if (file_path_counter < (MAX_FILEPATH_RECORDED - 1)) {
+            for (int i = 0, offset = data.file_path_counter; i < (int) droppedFiles.count; i++) {
+                if (data.file_path_counter < (MAX_FILEPATH_RECORDED - 1)) {
                     TextCopy(file_paths[offset + i], droppedFiles.paths[i]);
-                    file_path_counter++;
+                    data.file_path_counter++;
                 }
             }
             UnloadDroppedFiles(droppedFiles);
@@ -42,7 +40,7 @@ int main(int argc, char **argv) {
 
         BeginDrawing();
         ClearBackground(BGCOLOR);
-        grid_layout(&media_player, &data, file_paths, file_path_counter);
+        grid_layout(&media_player, &data, file_paths);
         EndDrawing();
     } // end: while
 
