@@ -55,6 +55,7 @@ typedef enum {
   X(EL_DROP_FILES)   \
   X(EL_BTN_PREV)     \
   X(EL_BTN_NEXT)     \
+  X(EL_PROGRESS_BAR) \
   X(EL_LYRICS)
 
 #define X(element) element,
@@ -90,8 +91,8 @@ void update_state(media_player *media_player, Event event);
 
 int (*return_map(media_player *media_player))[SIZE_ROWS][SIZE_COLS];
 
-void grid_layout(media_player *media_player,  gpointer user_data, char **file_paths);
+void grid_layout(media_player *media_player, gpointer user_data, char **file_paths);
 
-void load_and_play_track(CustomData * data, char ** file_paths);
+void load_and_play_track(CustomData *data, char **file_paths);
 
 #endif

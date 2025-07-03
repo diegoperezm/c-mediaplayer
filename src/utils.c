@@ -39,33 +39,33 @@ int (*return_map(media_player *media_player))[SIZE_ROWS][SIZE_COLS] {
     int static map[SIZE_ROWS][SIZE_COLS] = {0};
 
     int static map_state_waiting[SIZE_ROWS][SIZE_COLS] = {
-        {EL_BLANK},
-        {EL_BLANK, EL_DROP_FILES, EL_BLANK, EL_BLANK, EL_BLANK, EL_LYRICS},
-        {EL_BLANK},
+        {EL_DROP_FILES, EL_BLANK, EL_BLANK, EL_BLANK, EL_LYRICS},
         {EL_BLANK},
         {EL_BLANK},
         {EL_BLANK},
         {EL_BLANK},
-        {EL_BLANK, EL_BTN_PREV, EL_BTN_PLAY, EL_BTN_STOP, EL_BTN_NEXT},
         {EL_BLANK},
         {EL_BLANK},
-        {EL_BLANK, EL_LABEL},
         {EL_BLANK},
+        {EL_BLANK},
+        {EL_BLANK},
+        {EL_BLANK},
+        {EL_BTN_PREV, EL_BTN_PLAY, EL_BTN_STOP, EL_BTN_NEXT, EL_PROGRESS_BAR},
     };
 
     int static map_state_play[SIZE_ROWS][SIZE_COLS] = {
-        {EL_BLANK},
-        {EL_BLANK, EL_DROP_FILES, EL_BLANK, EL_BLANK, EL_BLANK, EL_LYRICS},
-        {EL_BLANK},
+        {EL_DROP_FILES, EL_BLANK, EL_BLANK, EL_BLANK, EL_LYRICS},
         {EL_BLANK},
         {EL_BLANK},
         {EL_BLANK},
         {EL_BLANK},
-        {EL_BLANK, EL_BTN_PREV, EL_BTN_PAUSE, EL_BTN_STOP, EL_BTN_NEXT},
         {EL_BLANK},
         {EL_BLANK},
-        {EL_BLANK, EL_LABEL},
         {EL_BLANK},
+        {EL_BLANK},
+        {EL_BLANK},
+        {EL_BLANK},
+        {EL_BTN_PREV, EL_BTN_PAUSE, EL_BTN_STOP, EL_BTN_NEXT, EL_PROGRESS_BAR},
     };
 
 
@@ -89,7 +89,6 @@ int (*return_map(media_player *media_player))[SIZE_ROWS][SIZE_COLS] {
 
 
 void grid_layout(media_player *media_player, gpointer user_data, char **file_paths) {
-    Color DARKORANGE = (Color){216,111,54};
     CustomData *data = (CustomData *) user_data;
     const float width = (float) GetScreenWidth();
     const float height = (float) GetScreenHeight();
@@ -99,6 +98,11 @@ void grid_layout(media_player *media_player, gpointer user_data, char **file_pat
     const Color font_color = GetColor(GuiGetStyle(0, 2));
     const int font_size = (int) (cell_height / cell_width);
 
+    gint64 position;
+    gint64 duration;
+    float current_position_track = 0.0f;
+    float total_len_track = 1.0f;
+
     const int (*map)[SIZE_ROWS][SIZE_COLS] = return_map(media_player);
 
     for (int row = 0; row < SIZE_ROWS; row++) {
@@ -107,9 +111,10 @@ void grid_layout(media_player *media_player, gpointer user_data, char **file_pat
             const float cell_y = (float) row * cell_height;
             const Rectangle cell = {cell_x, cell_y, cell_width, cell_height};
 
-            Rectangle panel_bounds = {cell_x, cell_y, cell_width * 4, cell_height * 6};
-            Rectangle lyrics_bounds = {cell_x, cell_y, cell_width * 6, cell_height * 7};
-
+            Rectangle drop_files_bounds = {cell_x, cell_y, cell_width * 4, cell_height * 11};
+            Rectangle lyrics_bounds = {cell_x, cell_y, cell_width * 8, cell_height * 11};
+            Rectangle progress_bar_bounds = {cell_x, cell_y, cell_width * 8, cell_height / 2};
+            Rectangle control_btn_bounds = (Rectangle){cell.x, cell.y, cell.width, cell.height / 2};
             Vector2 scroll = {0, 0};
             Rectangle content = {0, 0, 0, 0};
             Rectangle view = {0};
@@ -117,43 +122,55 @@ void grid_layout(media_player *media_player, gpointer user_data, char **file_pat
             switch ((*map)[row][col]) {
                 case EL_BLANK:
                     break;
+                case EL_PROGRESS_BAR:
+                    if (data->pipeline) {
+                        if (gst_element_query_position(data->pipeline, GST_FORMAT_TIME, &position)) {
+                            current_position_track = (float) position / GST_SECOND;
+                        }
+                        if (gst_element_query_duration(data->pipeline, GST_FORMAT_TIME, &duration)) {
+                            total_len_track = (float) duration / GST_SECOND;
+                        }
+                    }
+
+                    GuiProgressBar(progress_bar_bounds, NULL, NULL, &current_position_track, 0, total_len_track);
+                    break;
                 case EL_LYRICS:
                     GuiScrollPanel(lyrics_bounds, "Lyrics", content, &scroll, &view);
                     break;
                 case EL_DROP_FILES:
-                    GuiScrollPanel(panel_bounds, "Files", content, &scroll, &view);
+                    GuiScrollPanel(drop_files_bounds, "Files", content, &scroll, &view);
                     for (int i = 0; i < data->file_path_counter; i++) {
                         if (data->current_track_index == i) {
-                           DrawText(
+                            DrawText(
                                 GetFileName(file_paths[i]),
-                                (int) (panel_bounds.x + (cell_height / 6)),
-                                (int) (panel_bounds.y + (cell_height / 2) * ((float) i + 1) + cell_height / 6),
+                                (int) (drop_files_bounds.x + (cell_height / 6)),
+                                (int) (drop_files_bounds.y + (cell_height / 2) * ((float) i + 1) + cell_height / 6),
                                 font_size,
                                 YELLOW);
                         } else if (i % 2 == 0 && data->current_track_index != i) {
                             DrawRectangle(
-                                (int) panel_bounds.x,
-                                (int) (panel_bounds.y + (cell_height / 2.0f) * ((float) i + 1)),
-                                (int) panel_bounds.width,
+                                (int) drop_files_bounds.x,
+                                (int) (drop_files_bounds.y + (cell_height / 2.0f) * ((float) i + 1)),
+                                (int) drop_files_bounds.width,
                                 (int) cell_height / 2,
                                 Fade(LIGHTGRAY, 0.5f));
                             DrawText(
                                 GetFileName(file_paths[i]),
-                                (int) (panel_bounds.x + (cell_height / 6)),
-                                (int) (panel_bounds.y + (cell_height / 2) * ((float) i + 1) + cell_height / 6),
+                                (int) (drop_files_bounds.x + (cell_height / 6)),
+                                (int) (drop_files_bounds.y + (cell_height / 2) * ((float) i + 1) + cell_height / 6),
                                 font_size,
                                 WHITE);
                         } else {
                             DrawRectangle(
-                                (int) panel_bounds.x,
-                                (int) (panel_bounds.y + (cell_height / 2.0f) * ((float) i + 1)),
-                                (int) panel_bounds.width,
+                                (int) drop_files_bounds.x,
+                                (int) (drop_files_bounds.y + (cell_height / 2.0f) * ((float) i + 1)),
+                                (int) drop_files_bounds.width,
                                 (int) cell_height / 2,
                                 Fade(LIGHTGRAY, 0.3f));
                             DrawText(
                                 GetFileName(file_paths[i]),
-                                (int) (panel_bounds.x + (cell_height / 6)),
-                                (int) (panel_bounds.y + (cell_height / 2) * ((float) i + 1) + cell_height / 6),
+                                (int) (drop_files_bounds.x + (cell_height / 6)),
+                                (int) (drop_files_bounds.y + (cell_height / 2) * ((float) i + 1) + cell_height / 6),
                                 font_size,
                                 WHITE);
                         }
@@ -161,7 +178,7 @@ void grid_layout(media_player *media_player, gpointer user_data, char **file_pat
                     break;
 
                 case EL_BTN_PLAY:
-                    if (GuiButton((Rectangle){cell.x, cell.y, cell.width, cell.height}, "PLAY")) {
+                    if (GuiButton(control_btn_bounds, ">")) {
                         if (data->file_path_counter == 0) {
                             break;
                         }
@@ -185,8 +202,7 @@ void grid_layout(media_player *media_player, gpointer user_data, char **file_pat
                     break;
 
                 case EL_BTN_PAUSE:
-                    if (GuiButton((Rectangle){cell.x, cell.y, cell.width, cell.height},
-                                  "PAUSE")) {
+                    if (GuiButton(control_btn_bounds, "||")) {
                         if (data->pipeline) {
                             gst_element_set_state(data->pipeline, GST_STATE_PAUSED);
                         }
@@ -195,8 +211,8 @@ void grid_layout(media_player *media_player, gpointer user_data, char **file_pat
                     break;
 
                 case EL_BTN_STOP:
-                    if (GuiButton((Rectangle){cell.x, cell.y, cell.width, cell.height},
-                                  "STOP")) {
+                    if (GuiButton(control_btn_bounds,
+                                  "[]")) {
                         if (data->pipeline) {
                             gst_element_set_state(data->pipeline, GST_STATE_NULL);
                             gst_object_unref(data->pipeline);
@@ -209,7 +225,7 @@ void grid_layout(media_player *media_player, gpointer user_data, char **file_pat
                     }
                     break;
                 case EL_BTN_PREV:
-                    if (GuiButton((Rectangle){cell.x, cell.y, cell.width, cell.height}, "PREV")) {
+                    if (GuiButton(control_btn_bounds, "<<")) {
                         if (data->file_path_counter > 0) {
                             data->current_track_index =
                                     (data->current_track_index - 1 + data->file_path_counter) % data->file_path_counter;
@@ -222,7 +238,7 @@ void grid_layout(media_player *media_player, gpointer user_data, char **file_pat
                     break;
 
                 case EL_BTN_NEXT:
-                    if (GuiButton((Rectangle){cell.x, cell.y, cell.width, cell.height}, "NEXT")) {
+                    if (GuiButton(control_btn_bounds, ">>")) {
                         if (data->file_path_counter > 0) {
                             data->current_track_index = (data->current_track_index + 1) % data->file_path_counter;
                         }

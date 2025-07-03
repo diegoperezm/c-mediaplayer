@@ -41,14 +41,15 @@ int main(int argc, char **argv) {
         grid_layout(&media_player, &data, file_paths);
         EndDrawing();
     } // end: while
+    if (data.pipeline) {
+        gst_element_set_state(data.pipeline, GST_STATE_NULL);
+        gst_object_unref(data.pipeline);
+        data.pipeline = NULL;
+        data.source = NULL;
+        data.sink = NULL;
+    }
 
-    gst_element_set_state(data.pipeline, GST_STATE_NULL);
-    gst_object_unref(data.pipeline);
-    data.pipeline = NULL;
-    data.source = NULL;
-    data.sink = NULL;
     gst_deinit();
-
     for (int i = 0; i < MAX_FILEPATH_RECORDED; i++) {
         RL_FREE(file_paths[i]);
     }
