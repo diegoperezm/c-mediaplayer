@@ -9,7 +9,6 @@
 #endif
 
 
-
 int main(int argc, char **argv) {
     const Color BGCOLOR = (Color){0, 34, 43, 255};
     media_player media_player = {.currentState = STATE_WAITING};
@@ -21,11 +20,10 @@ int main(int argc, char **argv) {
     }
 
     gst_init(&argc, &argv);
-    CustomData data={0};
+    CustomData data = {0};
     setup_raylib();
 
     while (!WindowShouldClose()) {
-
         if (IsFileDropped()) {
             const FilePathList droppedFiles = LoadDroppedFiles();
             for (int i = 0, offset = data.file_path_counter; i < (int) droppedFiles.count; i++) {
@@ -46,6 +44,9 @@ int main(int argc, char **argv) {
 
     gst_element_set_state(data.pipeline, GST_STATE_NULL);
     gst_object_unref(data.pipeline);
+    data.pipeline = NULL;
+    data.source = NULL;
+    data.sink = NULL;
     gst_deinit();
 
     for (int i = 0; i < MAX_FILEPATH_RECORDED; i++) {

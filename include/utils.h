@@ -81,6 +81,7 @@ typedef struct _CustomData {
     int current_track_index;
 } CustomData;
 
+
 void setup_raylib();
 
 static void pad_added_handler(GstElement *src, GstPad *new_pad, gpointer user_data);

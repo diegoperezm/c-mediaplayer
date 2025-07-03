@@ -89,6 +89,7 @@ int (*return_map(media_player *media_player))[SIZE_ROWS][SIZE_COLS] {
 
 
 void grid_layout(media_player *media_player, gpointer user_data, char **file_paths) {
+    Color DARKORANGE = (Color){216,111,54};
     CustomData *data = (CustomData *) user_data;
     const float width = (float) GetScreenWidth();
     const float height = (float) GetScreenHeight();
@@ -106,7 +107,7 @@ void grid_layout(media_player *media_player, gpointer user_data, char **file_pat
             const float cell_y = (float) row * cell_height;
             const Rectangle cell = {cell_x, cell_y, cell_width, cell_height};
 
-            Rectangle drop_files_bounds = {cell_x, cell_y, cell_width * 4, cell_height * 6};
+            Rectangle panel_bounds = {cell_x, cell_y, cell_width * 4, cell_height * 6};
             Rectangle lyrics_bounds = {cell_x, cell_y, cell_width * 6, cell_height * 7};
 
             Vector2 scroll = {0, 0};
@@ -120,29 +121,42 @@ void grid_layout(media_player *media_player, gpointer user_data, char **file_pat
                     GuiScrollPanel(lyrics_bounds, "Lyrics", content, &scroll, &view);
                     break;
                 case EL_DROP_FILES:
-                    GuiScrollPanel(drop_files_bounds, "Files", content, &scroll, &view);
+                    GuiScrollPanel(panel_bounds, "Files", content, &scroll, &view);
                     for (int i = 0; i < data->file_path_counter; i++) {
-                        if (i % 2 == 0) {
+                        if (data->current_track_index == i) {
+                           DrawText(
+                                GetFileName(file_paths[i]),
+                                (int) (panel_bounds.x + (cell_height / 6)),
+                                (int) (panel_bounds.y + (cell_height / 2) * ((float) i + 1) + cell_height / 6),
+                                font_size,
+                                YELLOW);
+                        } else if (i % 2 == 0 && data->current_track_index != i) {
                             DrawRectangle(
-                                (int) drop_files_bounds.x,
-                                (int) (drop_files_bounds.y + (cell_height / 2.0f) * ((float) i + 1)),
-                                (int) drop_files_bounds.width,
+                                (int) panel_bounds.x,
+                                (int) (panel_bounds.y + (cell_height / 2.0f) * ((float) i + 1)),
+                                (int) panel_bounds.width,
                                 (int) cell_height / 2,
                                 Fade(LIGHTGRAY, 0.5f));
+                            DrawText(
+                                GetFileName(file_paths[i]),
+                                (int) (panel_bounds.x + (cell_height / 6)),
+                                (int) (panel_bounds.y + (cell_height / 2) * ((float) i + 1) + cell_height / 6),
+                                font_size,
+                                WHITE);
                         } else {
                             DrawRectangle(
-                                (int) drop_files_bounds.x,
-                                (int) (drop_files_bounds.y + (cell_height / 2.0f) * ((float) i + 1)),
-                                (int) drop_files_bounds.width,
+                                (int) panel_bounds.x,
+                                (int) (panel_bounds.y + (cell_height / 2.0f) * ((float) i + 1)),
+                                (int) panel_bounds.width,
                                 (int) cell_height / 2,
                                 Fade(LIGHTGRAY, 0.3f));
+                            DrawText(
+                                GetFileName(file_paths[i]),
+                                (int) (panel_bounds.x + (cell_height / 6)),
+                                (int) (panel_bounds.y + (cell_height / 2) * ((float) i + 1) + cell_height / 6),
+                                font_size,
+                                WHITE);
                         }
-                        DrawText(
-                            GetFileName(file_paths[i]),
-                            (int) (drop_files_bounds.x + (cell_height / 6)),
-                            (int) (drop_files_bounds.y + (cell_height / 2) * ((float) i + 1) + cell_height / 6),
-                            font_size,
-                            YELLOW);
                     }
                     break;
 
@@ -197,7 +211,8 @@ void grid_layout(media_player *media_player, gpointer user_data, char **file_pat
                 case EL_BTN_PREV:
                     if (GuiButton((Rectangle){cell.x, cell.y, cell.width, cell.height}, "PREV")) {
                         if (data->file_path_counter > 0) {
-                            data->current_track_index = (data->current_track_index - 1 + data->file_path_counter) % data->file_path_counter;
+                            data->current_track_index =
+                                    (data->current_track_index - 1 + data->file_path_counter) % data->file_path_counter;
                         }
                         load_and_play_track(data, file_paths);
                         update_state(media_player, event_prev);
