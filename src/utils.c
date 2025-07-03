@@ -15,15 +15,18 @@ char *event_name[] = {EVENT_TABLE};
 char *element_list[] = {ELEMENT_LIST};
 #undef X
 
+
+// @formatter:off
 State transition_table[NUM_STATES][NUM_EVENTS] = {
-    /* event_play | event_pause |   event_stop  | event_prev     | event_next */
-    [STATE_WAITING] = {STATE_PLAY, INVALID_STATE, INVALID_STATE, INVALID_STATE, INVALID_STATE},
-    [STATE_PLAY] = {INVALID_STATE, STATE_PAUSE, STATE_STOP, STATE_PREV, STATE_NEXT},
-    [STATE_PAUSE] = {STATE_PLAY, INVALID_STATE, STATE_STOP, STATE_PREV, STATE_NEXT},
-    [STATE_STOP] = {STATE_PLAY, INVALID_STATE, INVALID_STATE, STATE_PREV, STATE_NEXT},
-    [STATE_PREV] = {STATE_PLAY, INVALID_STATE, INVALID_STATE, INVALID_STATE, INVALID_STATE},
-    [STATE_NEXT] = {STATE_PLAY, INVALID_STATE, INVALID_STATE, INVALID_STATE, INVALID_STATE}
+                     /*event_play    |event_pause |  event_stop   | event_prev   | event_next */
+    [STATE_WAITING] = {STATE_PLAY,    INVALID_STATE, INVALID_STATE, INVALID_STATE, INVALID_STATE},
+    [STATE_PLAY]    = {INVALID_STATE, STATE_PAUSE,   STATE_STOP,    STATE_PREV,    STATE_NEXT},
+    [STATE_PAUSE]   = {STATE_PLAY,    INVALID_STATE, STATE_STOP,    STATE_PREV,    STATE_NEXT},
+    [STATE_STOP]    = {STATE_PLAY,    INVALID_STATE, INVALID_STATE, STATE_PREV,    STATE_NEXT},
+    [STATE_PREV]    = {STATE_PLAY,    INVALID_STATE, INVALID_STATE, INVALID_STATE, INVALID_STATE},
+    [STATE_NEXT]    = {STATE_PLAY,    INVALID_STATE, INVALID_STATE, INVALID_STATE, INVALID_STATE}
 };
+// @formatter:off
 
 void update_state(media_player *media_player, Event event) {
     State current_state = media_player->currentState;
