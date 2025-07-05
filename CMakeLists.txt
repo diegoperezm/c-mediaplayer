@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0...3.10)
+cmake_minimum_required(VERSION 3.16)
 project(cmediaplayer C)
 
 set(CMAKE_C_STANDARD 99)
@@ -34,6 +34,44 @@ FetchContent_MakeAvailable(raylib)
 
 message(STATUS "raylib downloaded to: ${raylib_SOURCE_DIR}")
 
+include(FetchContent)
+FetchContent_Declare(
+  curl
+  URL https://curl.se/download/curl-8.14.1.tar.gz)
+
+# Enable  HTTP,  no openssl/ssl
+set(BUILD_SHARED_LIBS    OFF CACHE BOOL "" FORCE)
+set(BUILD_CURL_EXE       OFF CACHE BOOL "" FORCE)
+set(CURL_ENABLE_SSL      OFF CACHE BOOL "" FORCE)
+set(CURL_USE_OPENSSL     OFF CACHE BOOL "" FORCE)
+set(HTTP_ONLY            ON  CACHE BOOL "" FORCE)
+set(CURL_USE_LIBPSL      OFF CACHE BOOL "" FORCE)
+set(BUILD_DOCS           OFF CACHE BOOL "" FORCE)
+set(CURL_DISABLE_MANUAL  ON CACHE BOOL "" FORCE)
+set(CURL_DISABLE_TESTS   ON CACHE BOOL "" FORCE)
+set(CURL_DISABLE_FTP     ON CACHE BOOL "" FORCE)
+set(CURL_DISABLE_LDAP    ON CACHE BOOL "" FORCE)
+set(CURL_DISABLE_TELNET  ON CACHE BOOL "" FORCE)
+set(CURL_DISABLE_DICT    ON CACHE BOOL "" FORCE)
+set(CURL_DISABLE_FILE    ON CACHE BOOL "" FORCE)
+set(CURL_DISABLE_TFTP    ON CACHE BOOL "" FORCE)
+set(CURL_DISABLE_RTSP    ON CACHE BOOL "" FORCE)
+set(CURL_DISABLE_GOPHER  ON CACHE BOOL "" FORCE)
+set(CURL_DISABLE_IMAP    ON CACHE BOOL "" FORCE)
+set(CURL_DISABLE_POP3    ON CACHE BOOL "" FORCE)
+set(CURL_DISABLE_SMTP    ON CACHE BOOL "" FORCE)
+set(CURL_DISABLE_SMB     ON CACHE BOOL "" FORCE)
+set(CURL_DISABLE_MQTT    ON CACHE BOOL "" FORCE)
+set(CURL_DISABLE_LDAPS   ON CACHE BOOL "" FORCE)
+set(CURL_DISABLE_PROXY   ON CACHE BOOL "" FORCE)
+set(CURL_DISABLE_COOKIES ON CACHE BOOL "" FORCE)
+set(CURL_DISABLE_ALTSVC  ON CACHE BOOL "" FORCE)
+set(CURL_DISABLE_PROGRESS_METER  ON CACHE BOOL "" FORCE)
+set(CURL_DISABLE_VERBOSE_STRINGS ON CACHE BOOL "" FORCE)
+set(CURL_DISABLE_NTLM            ON CACHE BOOL "" FORCE)
+
+FetchContent_MakeAvailable(curl)
+
 include_directories(include)
 file(GLOB SOURCES "src/*.c")
 
@@ -65,8 +103,9 @@ else()
 endif()
 
 add_executable(${EXECUTABLE_NAME} ${SOURCES})
+target_include_directories(${EXECUTABLE_NAME} PRIVATE ${curl_SOURCE_DIR}/include)
 target_compile_definitions(${EXECUTABLE_NAME} PRIVATE RAYGUI_IMPLEMENTATION)
-target_link_libraries(${EXECUTABLE_NAME} raylib ${GSTREAMER_LIBRARIES})
+target_link_libraries(${EXECUTABLE_NAME} raylib ${GSTREAMER_LIBRARIES} libcurl)
 
 #set(CMAKE_C_FLAGS_DEBUG "-std=c99 \
    #-g3 -Wall -Werror -Wconversion \
