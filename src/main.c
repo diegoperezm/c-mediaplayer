@@ -2,6 +2,7 @@
 #include "../include/utils.h"
 #include <stdlib.h>
 #include <unistd.h>
+#include <curl/curl.h>
 
 //#include "../include/style_candy.h"
 #ifdef __APPLE__
@@ -21,7 +22,16 @@ int main(int argc, char **argv) {
 
     gst_init(&argc, &argv);
     CustomData data = {0};
+
     setup_raylib();
+
+    CURL *handle = curl_easy_init();
+    if(handle) {
+       CURLcode res;
+       curl_easy_setopt(handle, CURLOPT_URL, "http://example.com/");
+       res = curl_easy_perform(handle);
+       curl_easy_cleanup(handle);
+    }
 
     while (!WindowShouldClose()) {
         if (IsFileDropped()) {
