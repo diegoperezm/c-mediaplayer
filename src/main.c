@@ -9,6 +9,34 @@
 #include <TargetConditionals.h>
 #endif
 
+typedef struct {
+    char *ptr;
+    size_t len;
+} String;
+
+void init_string(String *s) {
+    s->len = 0;
+    s->ptr = malloc(s->len + 1);
+    if (s->ptr == NULL) {
+        fprintf(stderr, "malloc() failed\n");
+        exit(EXIT_FAILURE);
+    }
+    s->ptr[0] = '\0';
+}
+
+size_t write_function(void *ptr, size_t size, size_t nmemb, String *s) {
+    size_t new_len = s->len + size * nmemb;
+    s->ptr = realloc(s->ptr, new_len + 1);
+    if (s->ptr == NULL) {
+        fprintf(stderr, "realloc() failed\n");
+        exit(EXIT_FAILURE);
+    }
+    memcpy(s->ptr + s->len, ptr, size * nmemb);
+    s->ptr[new_len] = '\0';
+    s->len = new_len;
+    return size * nmemb;
+}
+
 
 int main(int argc, char **argv) {
     const Color BGCOLOR = (Color){0, 34, 43, 255};
@@ -26,11 +54,23 @@ int main(int argc, char **argv) {
     setup_raylib();
 
     CURL *handle = curl_easy_init();
-    if(handle) {
-       CURLcode res;
-       curl_easy_setopt(handle, CURLOPT_URL, "http://example.com/");
-       res = curl_easy_perform(handle);
-       curl_easy_cleanup(handle);
+    String response;
+    init_string(&response);
+
+    if (handle) {
+        curl_easy_setopt(handle, CURLOPT_URL, "http://example.com/");
+//        curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_function);
+ //       curl_easy_setopt(handle, CURLOPT_WRITEDATA, &response);
+
+        CURLcode res = curl_easy_perform(handle);
+  //      if (res == CURLE_OK) {
+            printf("Respose: %s\n", response.ptr);
+   //     } else {
+     //       printf("curl_easy_perform() failes: %s\n", curl_easy_strerror(res));
+    //    }
+
+        curl_easy_cleanup(handle);
+        free(response.ptr);
     }
 
     while (!WindowShouldClose()) {
