@@ -15,6 +15,9 @@ message(STATUS "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
 # cmake -DCMAKE_BUILD_TYPE=Debug
 # cmake -DCMAKE_BUILD_TYPE=Release
 
+# not working
+#set(FETCHCONTENT_BASE_DIR "${CMAKE_SOURCE_DIR}/_deps" CACHE PATH "Base directory for FetchContent downloads")
+
 # from clay github.com/nicbarker/clay
 # Adding Raylib
 include(FetchContent)
@@ -34,10 +37,11 @@ FetchContent_MakeAvailable(raylib)
 
 message(STATUS "raylib downloaded to: ${raylib_SOURCE_DIR}")
 
-include(FetchContent)
 FetchContent_Declare(
         curl
-        URL https://curl.se/download/curl-8.14.1.tar.gz)
+        URL https://curl.se/download/curl-8.14.1.tar.gz
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
+
 
 # Enable  HTTP,  no openssl/ssl
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
@@ -95,8 +99,8 @@ else ()
 endif ()
 
 
-set(CMAKE_C_FLAGS_DEBUG "-std=c99 -g -O0 -fsanitize=address,undefined")
-set(CMAKE_C_FLAGS_RELEASE "-std=c99")
+set(CMAKE_C_FLAGS_DEBUG "-g -O0 -fsanitize=address,undefined")
+set(CMAKE_C_FLAGS_RELEASE "-O2")
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(EXECUTABLE_NAME "debug_cmediaplayer")
@@ -111,10 +115,24 @@ endif ()
 add_executable(${EXECUTABLE_NAME} ${SOURCES})
 target_include_directories(${EXECUTABLE_NAME} PRIVATE ${curl_SOURCE_DIR}/include)
 target_compile_definitions(${EXECUTABLE_NAME} PRIVATE RAYGUI_IMPLEMENTATION)
-target_link_libraries(${EXECUTABLE_NAME} raylib ${ALL_GSTREAMER_LIBRARIES} libcurl)
+target_link_libraries(${EXECUTABLE_NAME} raylib ${GSTREAMER_LIBRARIES} libcurl)
+
+# Clean only build artifacts
+#cmake --build . --target clean
+
+# Rebuild without re-downloading deps
+#cmake --build .
 
 #set(CMAKE_C_FLAGS_DEBUG "-std=c99 \
 #-g3 -Wall -Werror -Wconversion \
 #-Wdouble-promotion -fsanitize=address,undefined \
 #-Wno-unused-parameter -Wno-unused-function")
+
+#force re-download dependencies
+#rm -rf _deps
+#rm -rf build
+#mkdir build
+#cd build
+#cmake ..
+
 
