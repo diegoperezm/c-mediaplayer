@@ -53,7 +53,7 @@ int (*return_map(media_player *media_player))[SIZE_ROWS][SIZE_COLS] {
         {EL_BLANK},
         {EL_BLANK},
         {EL_BLANK},
-        {EL_BTN_PREV, EL_BTN_PLAY, EL_BTN_STOP, EL_BTN_NEXT, EL_PROGRESS_BAR},
+        {EL_BTN_PREV, EL_BTN_PLAY, EL_BTN_STOP, EL_BTN_NEXT, EL_PROGRESS_BAR, EL_VOLUME_SLIDER },
     };
 
     int static map_state_play[SIZE_ROWS][SIZE_COLS] = {
@@ -68,7 +68,7 @@ int (*return_map(media_player *media_player))[SIZE_ROWS][SIZE_COLS] {
         {EL_BLANK},
         {EL_BLANK},
         {EL_BLANK},
-        {EL_BTN_PREV, EL_BTN_PAUSE, EL_BTN_STOP, EL_BTN_NEXT, EL_PROGRESS_BAR},
+        {EL_BTN_PREV, EL_BTN_PAUSE, EL_BTN_STOP, EL_BTN_NEXT, EL_PROGRESS_BAR, EL_VOLUME_SLIDER},
     };
 
 
@@ -104,7 +104,11 @@ void grid_layout(media_player *media_player, gpointer user_data, char **file_pat
     gint64 position;
     gint64 duration;
     float current_position_track = 0.0f;
+    float min_len_track = 0.0f;
     float total_len_track = 1.0f;
+
+    float min_len_volume = 0.0f;
+    float max_len_volume = 1.0f;
 
     const int (*map)[SIZE_ROWS][SIZE_COLS] = return_map(media_player);
 
@@ -114,10 +118,12 @@ void grid_layout(media_player *media_player, gpointer user_data, char **file_pat
             const float cell_y = (float) row * cell_height;
             const Rectangle cell = {cell_x, cell_y, cell_width, cell_height};
 
-            Rectangle drop_files_bounds = {cell_x, cell_y, cell_width * 4, cell_height * 11};
-            Rectangle lyrics_bounds = {cell_x, cell_y, cell_width * 8, cell_height * 11};
+            Rectangle drop_files_bounds =   {cell_x, cell_y, cell_width * 4, cell_height * 11};
+            Rectangle lyrics_bounds =       {cell_x, cell_y, cell_width * 8, cell_height * 11};
             Rectangle progress_bar_bounds = {cell_x, cell_y, cell_width * 8, cell_height / 2};
-            Rectangle control_btn_bounds = (Rectangle){cell.x, cell.y, cell.width, cell.height / 2};
+            Rectangle volume_bar_bounds =   {cell_x, cell_y+(cell_height/2), cell_width * 7, cell_height / 2};
+            Rectangle control_btn_bounds =  {cell.x, cell.y, cell.width, cell.height};
+
             Vector2 scroll = {0, 0};
             Rectangle content = {0, 0, 0, 0};
             Rectangle view = {0};
@@ -125,6 +131,7 @@ void grid_layout(media_player *media_player, gpointer user_data, char **file_pat
             switch ((*map)[row][col]) {
                 case EL_BLANK:
                     break;
+
                 case EL_PROGRESS_BAR:
                     if (data->pipeline) {
                         if (gst_element_query_position(data->pipeline, GST_FORMAT_TIME, &position)) {
@@ -137,9 +144,18 @@ void grid_layout(media_player *media_player, gpointer user_data, char **file_pat
 
                     GuiProgressBar(progress_bar_bounds, NULL, NULL, &current_position_track, 0, total_len_track);
                     break;
+
+                case EL_VOLUME_SLIDER:
+                    if (data->volume) {
+                        g_object_set(data->volume, "volume", data->current_volume_level, NULL);
+                    }
+                    GuiSlider(volume_bar_bounds, "VOL ", NULL, &data->current_volume_level, min_len_volume, max_len_volume);
+                    break;
+
                 case EL_LYRICS:
                     GuiScrollPanel(lyrics_bounds, "Lyrics", content, &scroll, &view);
                     break;
+
                 case EL_DROP_FILES:
                     GuiScrollPanel(drop_files_bounds, "Files", content, &scroll, &view);
                     for (int i = 0; i < data->file_path_counter; i++) {
@@ -221,6 +237,7 @@ void grid_layout(media_player *media_player, gpointer user_data, char **file_pat
                             gst_object_unref(data->pipeline);
                             data->pipeline = NULL;
                             data->source = NULL;
+                            data->volume = NULL;
                             data->sink = NULL;
                         }
 
@@ -275,10 +292,28 @@ void setup_raylib() {
 static void pad_added_handler(GstElement *src, GstPad *new_pad, gpointer user_data) {
     CustomData *data = (CustomData *) user_data;
 
-    if (!data || !data->sink) {
+    if (!data || !data->volume) {
         g_printerr("Invalid data in pad_added_handler\n");
         return;
     }
+
+    GstPad *sink_pad = gst_element_get_static_pad(data->volume, "sink");
+    if(!sink_pad) {
+      g_printerr("Failed to get volume sink pad\n");
+      return;
+    }
+
+    if(gst_pad_is_linked(sink_pad)) {
+      g_print("Volume sink pad already linked\n");
+      gst_object_unref(sink_pad);
+      return;
+    } 
+/*
+    if (!data || !data->sink) {
+       g_printerr("Invalid data in pad_added_handler\n");
+     return;
+   }
+
     GstPad *sink_pad = gst_element_get_static_pad(data->sink, "sink");
     if (!sink_pad) {
         g_printerr("Failed to get sink pad\n");
@@ -290,7 +325,7 @@ static void pad_added_handler(GstElement *src, GstPad *new_pad, gpointer user_da
         gst_object_unref(sink_pad);
         return;
     }
-
+*/
     GstCaps *new_pad_caps = gst_pad_get_current_caps(new_pad);
     if (!new_pad_caps) {
         new_pad_caps = gst_pad_query_caps(new_pad, NULL);
@@ -323,30 +358,41 @@ static void pad_added_handler(GstElement *src, GstPad *new_pad, gpointer user_da
         g_printerr("Failed to link pads: %d\n", link_result);
     } else {
         g_print("Successfully linked audio pad: %s\n", new_pad_type);
+       
+        if(!gst_element_link(data->volume, data->sink)) {
+           g_printerr("Failed to link volume to sink\n");
+        }
     }
     gst_object_unref(sink_pad);
 }
 
 void load_and_play_track(CustomData *data, char **file_paths) {
+
     if (data->pipeline) {
         gst_element_set_state(data->pipeline, GST_STATE_NULL);
         gst_object_unref(data->pipeline);
         data->pipeline = NULL;
         data->source = NULL;
+        data->volume = NULL;
         data->sink = NULL;
     }
 
     data->source = gst_element_factory_make("uridecodebin", "source");
+    data->volume = gst_element_factory_make("volume", "volume");
     data->sink = gst_element_factory_make("autoaudiosink", "sink");
     data->pipeline = gst_pipeline_new("audio-pipeline");
 
-    if (!data->source || !data->sink || !data->pipeline) {
+    if (!data->source || !data->volume || !data->sink || !data->pipeline) {
         g_printerr("Error creating GStreamer elements for track %s\n",
                    file_paths[data->current_track_index]);
 
         if (data->source) {
             gst_object_unref(data->source);
             data->source = NULL;
+        }
+        if (data->volume) {
+            gst_object_unref(data->volume);
+            data->volume = NULL;
         }
         if (data->sink) {
             gst_object_unref(data->sink);
@@ -365,6 +411,7 @@ void load_and_play_track(CustomData *data, char **file_paths) {
         gst_object_unref(data->pipeline);
         data->pipeline = NULL;
         data->source = NULL;
+        data->volume = NULL;
         data->sink = NULL;
         return;
     }
@@ -372,8 +419,11 @@ void load_and_play_track(CustomData *data, char **file_paths) {
     g_object_set(data->source, "uri", uri, NULL);
     g_free(uri);
 
-    gst_bin_add_many(GST_BIN(data->pipeline), data->source, data->sink, NULL);
+    gst_bin_add_many(GST_BIN(data->pipeline), data->source, data->volume, data->sink, NULL);
     g_signal_connect(data->source, "pad-added", G_CALLBACK(pad_added_handler), data);
+
+    g_object_set(data->volume, "volume", data->current_volume_level, NULL);
+
 
     GstStateChangeReturn ret = gst_element_set_state(data->pipeline, GST_STATE_PLAYING);
     if (ret == GST_STATE_CHANGE_FAILURE) {
@@ -382,6 +432,7 @@ void load_and_play_track(CustomData *data, char **file_paths) {
         gst_object_unref(data->pipeline);
         data->pipeline = NULL;
         data->source = NULL;
+        data->volume = NULL;
         data->sink = NULL;
     } else {
         g_print("Playing track %d: %s\n", data->current_track_index,
