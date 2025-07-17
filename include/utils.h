@@ -75,7 +75,7 @@ typedef struct {
 } media_player;
 
 
-typedef struct _CustomData {
+typedef struct {
     GstElement *pipeline;
     GstElement *source;
     GstElement *volume;
