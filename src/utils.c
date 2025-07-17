@@ -101,15 +101,6 @@ void grid_layout(media_player *media_player, gpointer user_data, char **file_pat
     const Color font_color = GetColor(GuiGetStyle(0, 2));
     const int font_size = (int) (cell_height / cell_width);
 
-    gint64 position;
-    gint64 duration;
-    float current_position_track = 0.0f;
-    float min_len_track = 0.0f;
-    float total_len_track = 1.0f;
-
-    float min_len_volume = 0.0f;
-    float max_len_volume = 1.0f;
-
     const int (*map)[SIZE_ROWS][SIZE_COLS] = return_map(media_player);
 
     for (int row = 0; row < SIZE_ROWS; row++) {
@@ -134,22 +125,22 @@ void grid_layout(media_player *media_player, gpointer user_data, char **file_pat
 
                 case EL_PROGRESS_BAR:
                     if (data->pipeline) {
-                        if (gst_element_query_position(data->pipeline, GST_FORMAT_TIME, &position)) {
-                            current_position_track = (float) position / GST_SECOND;
+                        if (gst_element_query_position(data->pipeline, GST_FORMAT_TIME, &data->position)) {
+                            data->current_position_track = (float) data->position / GST_SECOND;
                         }
-                        if (gst_element_query_duration(data->pipeline, GST_FORMAT_TIME, &duration)) {
-                            total_len_track = (float) duration / GST_SECOND;
+                        if (gst_element_query_duration(data->pipeline, GST_FORMAT_TIME, &data->duration)) {
+                            data->total_len_track = (float) data->duration / GST_SECOND;
                         }
                     }
 
-                    GuiProgressBar(progress_bar_bounds, NULL, NULL, &current_position_track, 0, total_len_track);
+                    GuiProgressBar(progress_bar_bounds, NULL, NULL, &data->current_position_track, 0, data->total_len_track);
                     break;
 
                 case EL_VOLUME_SLIDER:
                     if (data->volume) {
                         g_object_set(data->volume, "volume", data->current_volume_level, NULL);
                     }
-                    GuiSlider(volume_bar_bounds, "VOL ", NULL, &data->current_volume_level, min_len_volume, max_len_volume);
+                    GuiSlider(volume_bar_bounds, "VOL ", NULL, &data->current_volume_level, data->min_len_volume, data->max_len_volume);
                     break;
 
                 case EL_LYRICS:

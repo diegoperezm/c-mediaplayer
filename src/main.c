@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
     }
 
     gst_init(&argc, &argv);
-    CustomData data = {.current_volume_level = 0.3f};
+    CustomData data = {.current_volume_level = 0.3f, .total_len_track = 1.0f, .max_len_volume = 1.0f};
     setup_raylib();
 
     while (!WindowShouldClose()) {

@@ -83,6 +83,13 @@ typedef struct _CustomData {
     float current_volume_level;
     int file_path_counter;
     int current_track_index;
+    gint64 position;
+    gint64 duration;
+    float current_position_track;
+    float min_len_track;
+    float total_len_track;
+    float min_len_volume;
+    float max_len_volume;
 } CustomData;
 
 
