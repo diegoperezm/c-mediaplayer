@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.0...3.10)
 project(cmediaplayer C)
 
 set(CMAKE_C_STANDARD 99)
@@ -37,6 +37,7 @@ FetchContent_MakeAvailable(raylib)
 
 message(STATUS "raylib downloaded to: ${raylib_SOURCE_DIR}")
 
+<<<<<<< HEAD
 FetchContent_Declare(
         curl
         URL https://curl.se/download/curl-8.14.1.tar.gz
@@ -76,6 +77,8 @@ set(CURL_DISABLE_NTLM ON CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(curl)
 
+=======
+>>>>>>> master
 include_directories(include)
 file(GLOB SOURCES "src/*.c")
 
@@ -113,9 +116,8 @@ else ()
 endif ()
 
 add_executable(${EXECUTABLE_NAME} ${SOURCES})
-target_include_directories(${EXECUTABLE_NAME} PRIVATE ${curl_SOURCE_DIR}/include)
 target_compile_definitions(${EXECUTABLE_NAME} PRIVATE RAYGUI_IMPLEMENTATION)
-target_link_libraries(${EXECUTABLE_NAME} raylib ${GSTREAMER_LIBRARIES} libcurl)
+target_link_libraries(${EXECUTABLE_NAME} raylib ${GSTREAMER_LIBRARIES})
 
 # Clean only build artifacts
 #cmake --build . --target clean

@@ -56,6 +56,7 @@ typedef enum {
   X(EL_BTN_PREV)     \
   X(EL_BTN_NEXT)     \
   X(EL_PROGRESS_BAR) \
+  X(EL_VOLUME_SLIDER)   \
   X(EL_LYRICS)
 
 #define X(element) element,
@@ -77,7 +78,9 @@ typedef struct {
 typedef struct _CustomData {
     GstElement *pipeline;
     GstElement *source;
+    GstElement *volume;
     GstElement *sink;
+    float current_volume_level;
     int file_path_counter;
     int current_track_index;
 } CustomData;

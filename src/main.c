@@ -49,8 +49,12 @@ int main(int argc, char **argv) {
     }
 
     gst_init(&argc, &argv);
+<<<<<<< HEAD
     CustomData data = {0};
 
+=======
+    CustomData data = {.current_volume_level = 0.3f};
+>>>>>>> master
     setup_raylib();
 
     CURL *handle = curl_easy_init();
@@ -96,6 +100,7 @@ int main(int argc, char **argv) {
         gst_object_unref(data.pipeline);
         data.pipeline = NULL;
         data.source = NULL;
+        data.volume = NULL;
         data.sink = NULL;
     }
 
