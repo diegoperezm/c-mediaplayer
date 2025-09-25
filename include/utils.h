@@ -87,6 +87,7 @@ typedef struct _CustomData {
 
 
 void setup_raylib();
+void print_transition_table(void);
 static void pad_added_handler(GstElement *src, GstPad *new_pad, gpointer user_data);
 void update_state(MediaPlayer *media_player, Event event);
 int (*return_map(MediaPlayer  *media_player))[SIZE_ROWS][SIZE_COLS];

@@ -10,6 +10,11 @@
 
 int main(int argc, char **argv)
 {
+  if(argc > 1) {
+    print_transition_table();
+    return EXIT_SUCCESS;
+  }
+
   const Color BGCOLOR = (Color){0, 34, 43, 255};
   MediaPlayer media_player = {.currentState = STATE_WAITING};
 

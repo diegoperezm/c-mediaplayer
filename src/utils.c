@@ -164,7 +164,6 @@ void grid_layout(MediaPlayer *media_player, gpointer user_data,
     {
       const float cell_x = (float)col * cell_width;
       const float cell_y = (float)row * cell_height;
-      const Rectangle cell = {cell_x, cell_y, cell_width, cell_height};
 
       Rectangle drop_files_bounds = {cell_x, cell_y, cell_width * 4,
                                      cell_height * 11};
@@ -174,7 +173,8 @@ void grid_layout(MediaPlayer *media_player, gpointer user_data,
                                        cell_height / 2};
       Rectangle volume_bar_bounds = {cell_x, cell_y + (cell_height / 2),
                                      cell_width * 7, cell_height / 2};
-      Rectangle control_btn_bounds = {cell.x, cell.y, cell.width, cell.height};
+
+      Rectangle control_btn_bounds = {cell_x, cell_y, cell_width, cell_height};
 
       Vector2 scroll = {0, 0};
       Rectangle content = {0, 0, 0, 0};
@@ -353,8 +353,8 @@ void grid_layout(MediaPlayer *media_player, gpointer user_data,
         break;
 
       case EL_LABEL:
-        DrawText(state_name[media_player->currentState], (int)cell.x,
-                 (int)cell.y, font_size, font_color);
+        DrawText(state_name[media_player->currentState], (int)cell_x,
+                 (int)cell_y, font_size, font_color);
         break;
 
       default:
@@ -531,4 +531,29 @@ void load_and_play_track(CustomData *data, char **file_paths)
     g_print("Playing track %d: %s\n", data->current_track_index,
             GetFileName(file_paths[data->current_track_index]));
   }
+}
+
+void print_transition_table()
+{
+  printf("digraph media_player{\n");
+  printf(" rankdir=TB;\n");
+  printf(" bgcolor=black;\n");
+  printf(" node [shape=circle, style=filled, fillcolor=black,");
+  printf(" fontcolor=white, color=white];\n");
+  printf(" edge [color=white, fontcolor=white];\n\n");
+
+
+  for (int s = 0; s < NUM_STATES; s++)
+  {
+    for (int e = 0; e < NUM_EVENTS; e++)
+    {
+      int next = transition_table[s][e];
+      if (next != INVALID_STATE)
+      {
+        printf(" %s -> %s [label=\"%s\"];\n", state_name[s], state_name[next],
+               event_name[e]);
+      }
+    }
+  }
+  printf("}\n");
 }
