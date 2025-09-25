@@ -69,7 +69,7 @@ State transition_table[NUM_STATES][NUM_EVENTS] = {
         },
 };
 
-void update_state(media_player *media_player, Event event)
+void update_state(MediaPlayer *media_player, Event event)
 {
   State current_state = media_player->currentState;
   State next_state = transition_table[current_state][event] != INVALID_STATE
@@ -79,7 +79,7 @@ void update_state(media_player *media_player, Event event)
   media_player->currentState = next_state;
 }
 
-int (*return_map(media_player *media_player)) [SIZE_ROWS][SIZE_COLS]
+int (*return_map(MediaPlayer *media_player)) [SIZE_ROWS][SIZE_COLS]
 {
   const State state = media_player->currentState;
   int static map[SIZE_ROWS][SIZE_COLS] = {0};
@@ -135,7 +135,7 @@ int (*return_map(media_player *media_player)) [SIZE_ROWS][SIZE_COLS]
   }
 }
 
-void grid_layout(media_player *media_player, gpointer user_data,
+void grid_layout(MediaPlayer *media_player, gpointer user_data,
                  char **file_paths)
 {
   CustomData *data = (CustomData *)user_data;
@@ -398,24 +398,7 @@ static void pad_added_handler(GstElement *src, GstPad *new_pad,
     gst_object_unref(sink_pad);
     return;
   }
-  /*
-      if (!data || !data->sink) {
-         g_printerr("Invalid data in pad_added_handler\n");
-       return;
-     }
 
-      GstPad *sink_pad = gst_element_get_static_pad(data->sink, "sink");
-      if (!sink_pad) {
-          g_printerr("Failed to get sink pad\n");
-          return;
-      }
-
-      if (gst_pad_is_linked(sink_pad)) {
-          g_print("Sink pad already linked\n");
-          gst_object_unref(sink_pad);
-          return;
-      }
-  */
   GstCaps *new_pad_caps = gst_pad_get_current_caps(new_pad);
   if (!new_pad_caps)
   {

@@ -72,7 +72,7 @@ typedef struct {
     struct {
         const char *display;
     } context;
-} media_player;
+} MediaPlayer;
 
 
 typedef struct _CustomData {
@@ -87,15 +87,10 @@ typedef struct _CustomData {
 
 
 void setup_raylib();
-
 static void pad_added_handler(GstElement *src, GstPad *new_pad, gpointer user_data);
-
-void update_state(media_player *media_player, Event event);
-
-int (*return_map(media_player *media_player))[SIZE_ROWS][SIZE_COLS];
-
-void grid_layout(media_player *media_player, gpointer user_data, char **file_paths);
-
+void update_state(MediaPlayer *media_player, Event event);
+int (*return_map(MediaPlayer  *media_player))[SIZE_ROWS][SIZE_COLS];
+void grid_layout(MediaPlayer  *media_player, gpointer user_data, char **file_paths);
 void load_and_play_track(CustomData *data, char **file_paths);
 
 #endif

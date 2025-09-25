@@ -11,7 +11,7 @@
 int main(int argc, char **argv)
 {
   const Color BGCOLOR = (Color){0, 34, 43, 255};
-  media_player media_player = {.currentState = STATE_WAITING};
+  MediaPlayer media_player = {.currentState = STATE_WAITING};
 
   char *file_paths[MAX_FILEPATH_RECORDED] = {0};
 
