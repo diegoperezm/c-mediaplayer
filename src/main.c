@@ -2,7 +2,9 @@
 #include "../include/utils.h"
 #include <stdlib.h>
 #include <unistd.h>
-#include <curl/curl.h>
+#include <stdio.h>
+
+//#include <curl/curl.h>
 
 //#include "../include/style_candy.h"
 #ifdef __APPLE__
@@ -49,14 +51,14 @@ int main(int argc, char **argv) {
     }
 
     gst_init(&argc, &argv);
-<<<<<<< HEAD
+
     CustomData data = {0};
 
-=======
-    CustomData data = {.current_volume_level = 0.3f};
->>>>>>> master
-    setup_raylib();
 
+//    CustomData data = {.current_volume_level = 0.3f};
+
+    setup_raylib();
+/*
     CURL *handle = curl_easy_init();
     String response;
     init_string(&response);
@@ -76,7 +78,7 @@ int main(int argc, char **argv) {
         curl_easy_cleanup(handle);
         free(response.ptr);
     }
-
+*/
     while (!WindowShouldClose()) {
         if (IsFileDropped()) {
             const FilePathList droppedFiles = LoadDroppedFiles();
@@ -95,6 +97,7 @@ int main(int argc, char **argv) {
         grid_layout(&media_player, &data, file_paths);
         EndDrawing();
     } // end: while
+
     if (data.pipeline) {
         gst_element_set_state(data.pipeline, GST_STATE_NULL);
         gst_object_unref(data.pipeline);
