@@ -72,9 +72,10 @@ State transition_table[NUM_STATES][NUM_EVENTS] = {
 void update_state(MediaPlayer *media_player, Event event)
 {
   State current_state = media_player->currentState;
-  State next_state = transition_table[current_state][event] != INVALID_STATE
-                         ? transition_table[current_state][event]
-                         : current_state;
+  State next_state =
+      transition_table[current_state][event] != INVALID_STATE
+          ? transition_table[current_state][event]
+          : current_state;
 
   media_player->currentState = next_state;
 }
@@ -85,7 +86,7 @@ int (*return_map(MediaPlayer *media_player)) [SIZE_ROWS][SIZE_COLS]
   int static map[SIZE_ROWS][SIZE_COLS] = {0};
 
   int static map_state_waiting[SIZE_ROWS][SIZE_COLS] = {
-      {EL_DROP_FILES, EL_BLANK, EL_BLANK, EL_BLANK, EL_LYRICS},
+      {EL_DROP_FILES},
       {EL_BLANK},
       {EL_BLANK},
       {EL_BLANK},
@@ -96,12 +97,16 @@ int (*return_map(MediaPlayer *media_player)) [SIZE_ROWS][SIZE_COLS]
       {EL_BLANK},
       {EL_BLANK},
       {EL_BLANK},
-      {EL_BTN_PREV, EL_BTN_PLAY, EL_BTN_STOP, EL_BTN_NEXT, EL_PROGRESS_BAR,
+      {EL_BTN_PREV,
+       EL_BTN_PLAY,
+       EL_BTN_STOP,
+       EL_BTN_NEXT,
+       EL_PROGRESS_BAR,
        EL_VOLUME_SLIDER},
   };
 
   int static map_state_play[SIZE_ROWS][SIZE_COLS] = {
-      {EL_DROP_FILES, EL_BLANK, EL_BLANK, EL_BLANK, EL_LYRICS},
+      {EL_DROP_FILES},
       {EL_BLANK},
       {EL_BLANK},
       {EL_BLANK},
@@ -112,7 +117,11 @@ int (*return_map(MediaPlayer *media_player)) [SIZE_ROWS][SIZE_COLS]
       {EL_BLANK},
       {EL_BLANK},
       {EL_BLANK},
-      {EL_BTN_PREV, EL_BTN_PAUSE, EL_BTN_STOP, EL_BTN_NEXT, EL_PROGRESS_BAR,
+      {EL_BTN_PREV,
+       EL_BTN_PAUSE,
+       EL_BTN_STOP,
+       EL_BTN_NEXT,
+       EL_PROGRESS_BAR,
        EL_VOLUME_SLIDER},
   };
 
@@ -135,8 +144,10 @@ int (*return_map(MediaPlayer *media_player)) [SIZE_ROWS][SIZE_COLS]
   }
 }
 
-void grid_layout(MediaPlayer *media_player, gpointer user_data,
-                 char **file_paths)
+void grid_layout(
+    MediaPlayer *media_player,
+    gpointer user_data,
+    char **file_paths)
 {
   CustomData *data = (CustomData *)user_data;
   const float width = (float)GetScreenWidth();
@@ -145,7 +156,7 @@ void grid_layout(MediaPlayer *media_player, gpointer user_data,
   const float cell_height = height / GRID_ROWS;
 
   const Color font_color = GetColor(GuiGetStyle(0, 2));
-  const int font_size = (int)(cell_height / cell_width);
+  const int font_size = (int)(cell_height / 2);
 
   gint64 position;
   gint64 duration;
@@ -165,16 +176,23 @@ void grid_layout(MediaPlayer *media_player, gpointer user_data,
       const float cell_x = (float)col * cell_width;
       const float cell_y = (float)row * cell_height;
 
-      Rectangle drop_files_bounds = {cell_x, cell_y, cell_width * 4,
-                                     cell_height * 11};
-      Rectangle lyrics_bounds = {cell_x, cell_y, cell_width * 8,
-                                 cell_height * 11};
-      Rectangle progress_bar_bounds = {cell_x, cell_y, cell_width * 8,
-                                       cell_height / 2};
-      Rectangle volume_bar_bounds = {cell_x, cell_y + (cell_height / 2),
-                                     cell_width * 7, cell_height / 2};
+      Rectangle drop_files_bounds =
+          {cell_x, cell_y, cell_width * 12, cell_height * 11};
 
-      Rectangle control_btn_bounds = {cell_x, cell_y, cell_width, cell_height};
+      Rectangle control_btn_bounds =
+          {cell_x, cell_y, cell_width, cell_height};
+
+      Rectangle lyrics_bounds =
+          {cell_x, cell_y, cell_width * 8, cell_height * 11};
+
+      Rectangle progress_bar_bounds =
+          {cell_x, cell_y, cell_width * 8, cell_height / 2};
+
+      Rectangle volume_bar_bounds = {
+          cell_x,
+          cell_y + (cell_height / 2),
+          cell_width * (7),
+          cell_height / 2};
 
       Vector2 scroll = {0, 0};
       Rectangle content = {0, 0, 0, 0};
@@ -188,76 +206,111 @@ void grid_layout(MediaPlayer *media_player, gpointer user_data,
       case EL_PROGRESS_BAR:
         if (data->pipeline)
         {
-          if (gst_element_query_position(data->pipeline, GST_FORMAT_TIME,
-                                         &position))
+          if (gst_element_query_position(
+                  data->pipeline,
+                  GST_FORMAT_TIME,
+                  &position))
           {
             current_position_track = (float)position / GST_SECOND;
           }
-          if (gst_element_query_duration(data->pipeline, GST_FORMAT_TIME,
-                                         &duration))
+          if (gst_element_query_duration(
+                  data->pipeline,
+                  GST_FORMAT_TIME,
+                  &duration))
           {
             total_len_track = (float)duration / GST_SECOND;
           }
         }
 
-        GuiProgressBar(progress_bar_bounds, NULL, NULL, &current_position_track,
-                       0, total_len_track);
+        GuiProgressBar(
+            progress_bar_bounds,
+            NULL,
+            NULL,
+            &current_position_track,
+            0,
+            total_len_track);
         break;
 
       case EL_VOLUME_SLIDER:
         if (data->volume)
         {
-          g_object_set(data->volume, "volume", data->current_volume_level,
-                       NULL);
+          g_object_set(
+              data->volume,
+              "volume",
+              data->current_volume_level,
+              NULL);
         }
-        GuiSlider(volume_bar_bounds, "VOL ", NULL, &data->current_volume_level,
-                  min_len_volume, max_len_volume);
+        GuiSlider(
+            volume_bar_bounds,
+            "VOL ",
+            NULL,
+            &data->current_volume_level,
+            min_len_volume,
+            max_len_volume);
         break;
 
       case EL_LYRICS:
-        GuiScrollPanel(lyrics_bounds, "Lyrics", content, &scroll, &view);
+        GuiScrollPanel(
+            lyrics_bounds,
+            "Lyrics",
+            content,
+            &scroll,
+            &view);
         break;
 
       case EL_DROP_FILES:
-        GuiScrollPanel(drop_files_bounds, "Files", content, &scroll, &view);
+        GuiScrollPanel(
+            drop_files_bounds,
+            "Files",
+            content,
+            &scroll,
+            &view);
         for (int i = 0; i < data->file_path_counter; i++)
         {
           if (data->current_track_index == i)
           {
-            DrawText(GetFileName(file_paths[i]),
-                     (int)(drop_files_bounds.x + (cell_height / 6)),
-                     (int)(drop_files_bounds.y +
-                           (cell_height / 2) * ((float)i + 1) +
-                           cell_height / 6),
-                     font_size, YELLOW);
+            DrawText(
+                GetFileName(file_paths[i]),
+                (int)(drop_files_bounds.x + (cell_height / 6)),
+                (int)(drop_files_bounds.y +
+                      (cell_height / 2) * ((float)i + 1.0f)),
+                font_size,
+                YELLOW);
           }
           else if (i % 2 == 0 && data->current_track_index != i)
           {
-            DrawRectangle((int)drop_files_bounds.x,
-                          (int)(drop_files_bounds.y +
-                                (cell_height / 2.0f) * ((float)i + 1)),
-                          (int)drop_files_bounds.width, (int)cell_height / 2,
-                          Fade(LIGHTGRAY, 0.5f));
-            DrawText(GetFileName(file_paths[i]),
-                     (int)(drop_files_bounds.x + (cell_height / 6)),
-                     (int)(drop_files_bounds.y +
-                           (cell_height / 2) * ((float)i + 1) +
-                           cell_height / 6),
-                     font_size, WHITE);
+            DrawRectangle(
+                (int)drop_files_bounds.x,
+                (int)(drop_files_bounds.y +
+                      (cell_height / 2.0f) * ((float)i + 1)),
+                (int)drop_files_bounds.width,
+                (int)cell_height / 2,
+                Fade(LIGHTGRAY, 0.5f));
+
+            DrawText(
+                GetFileName(file_paths[i]),
+                (int)(drop_files_bounds.x + (cell_height / 6)),
+                (int)(drop_files_bounds.y +
+                      (cell_height / 2) * ((float)i + 1.0f)),
+                font_size,
+                WHITE);
           }
           else
           {
-            DrawRectangle((int)drop_files_bounds.x,
-                          (int)(drop_files_bounds.y +
-                                (cell_height / 2.0f) * ((float)i + 1)),
-                          (int)drop_files_bounds.width, (int)cell_height / 2,
-                          Fade(LIGHTGRAY, 0.3f));
-            DrawText(GetFileName(file_paths[i]),
-                     (int)(drop_files_bounds.x + (cell_height / 6)),
-                     (int)(drop_files_bounds.y +
-                           (cell_height / 2) * ((float)i + 1) +
-                           cell_height / 6),
-                     font_size, WHITE);
+            DrawRectangle(
+                (int)drop_files_bounds.x,
+                (int)(drop_files_bounds.y +
+                      (cell_height / 2.0f) * ((float)i + 1)),
+                (int)drop_files_bounds.width,
+                (int)cell_height / 2,
+                Fade(LIGHTGRAY, 0.5f));
+            DrawText(
+                GetFileName(file_paths[i]),
+                (int)(drop_files_bounds.x + (cell_height / 6)),
+                (int)(drop_files_bounds.y +
+                      (cell_height / 2) * ((float)i + 1.0f)),
+                font_size,
+                WHITE);
           }
         }
         break;
@@ -271,8 +324,9 @@ void grid_layout(MediaPlayer *media_player, gpointer user_data,
           }
           if (data->pipeline)
           {
-            GstStateChangeReturn ret =
-                gst_element_set_state(data->pipeline, GST_STATE_PLAYING);
+            GstStateChangeReturn ret = gst_element_set_state(
+                data->pipeline,
+                GST_STATE_PLAYING);
             if (ret == GST_STATE_CHANGE_FAILURE)
             {
               g_printerr("Failed to resume playback\n");
@@ -328,7 +382,8 @@ void grid_layout(MediaPlayer *media_player, gpointer user_data,
           if (data->file_path_counter > 0)
           {
             data->current_track_index =
-                (data->current_track_index - 1 + data->file_path_counter) %
+                (data->current_track_index - 1 +
+                 data->file_path_counter) %
                 data->file_path_counter;
           }
           load_and_play_track(data, file_paths);
@@ -344,7 +399,8 @@ void grid_layout(MediaPlayer *media_player, gpointer user_data,
           if (data->file_path_counter > 0)
           {
             data->current_track_index =
-                (data->current_track_index + 1) % data->file_path_counter;
+                (data->current_track_index + 1) %
+                data->file_path_counter;
           }
           load_and_play_track(data, file_paths);
           update_state(media_player, event_next);
@@ -353,8 +409,12 @@ void grid_layout(MediaPlayer *media_player, gpointer user_data,
         break;
 
       case EL_LABEL:
-        DrawText(state_name[media_player->currentState], (int)cell_x,
-                 (int)cell_y, font_size, font_color);
+        DrawText(
+            state_name[media_player->currentState],
+            (int)cell_x,
+            (int)cell_y,
+            font_size,
+            font_color);
         break;
 
       default:
@@ -374,8 +434,10 @@ void setup_raylib()
   GuiLoadStyleCyber();
 }
 
-static void pad_added_handler(GstElement *src, GstPad *new_pad,
-                              gpointer user_data)
+static void pad_added_handler(
+    GstElement *src,
+    GstPad *new_pad,
+    gpointer user_data)
 {
   CustomData *data = (CustomData *)user_data;
 
@@ -412,7 +474,8 @@ static void pad_added_handler(GstElement *src, GstPad *new_pad,
     return;
   }
 
-  GstStructure *new_pad_struct = gst_caps_get_structure(new_pad_caps, 0);
+  GstStructure *new_pad_struct =
+      gst_caps_get_structure(new_pad_caps, 0);
   const gchar *new_pad_type = gst_structure_get_name(new_pad_struct);
 
   gboolean is_audio = g_str_has_prefix(new_pad_type, "audio/x-raw") ||
@@ -463,10 +526,12 @@ void load_and_play_track(CustomData *data, char **file_paths)
   data->sink = gst_element_factory_make("autoaudiosink", "sink");
   data->pipeline = gst_pipeline_new("audio-pipeline");
 
-  if (!data->source || !data->volume || !data->sink || !data->pipeline)
+  if (!data->source || !data->volume || !data->sink ||
+      !data->pipeline)
   {
-    g_printerr("Error creating GStreamer elements for track %s\n",
-               file_paths[data->current_track_index]);
+    g_printerr(
+        "Error creating GStreamer elements for track %s\n",
+        file_paths[data->current_track_index]);
 
     if (data->source)
     {
@@ -491,11 +556,14 @@ void load_and_play_track(CustomData *data, char **file_paths)
     return;
   }
 
-  gchar *uri = gst_filename_to_uri(file_paths[data->current_track_index], NULL);
+  gchar *uri = gst_filename_to_uri(
+      file_paths[data->current_track_index],
+      NULL);
   if (!uri)
   {
-    g_printerr("Error converting path to uri for track %d\n",
-               data->current_track_index);
+    g_printerr(
+        "Error converting path to uri for track %d\n",
+        data->current_track_index);
     gst_object_unref(data->pipeline);
     data->pipeline = NULL;
     data->source = NULL;
@@ -507,18 +575,31 @@ void load_and_play_track(CustomData *data, char **file_paths)
   g_object_set(data->source, "uri", uri, NULL);
   g_free(uri);
 
-  gst_bin_add_many(GST_BIN(data->pipeline), data->source, data->volume,
-                   data->sink, NULL);
-  g_signal_connect(data->source, "pad-added", G_CALLBACK(pad_added_handler),
-                   data);
+  gst_bin_add_many(
+      GST_BIN(data->pipeline),
+      data->source,
+      data->volume,
+      data->sink,
+      NULL);
+  g_signal_connect(
+      data->source,
+      "pad-added",
+      G_CALLBACK(pad_added_handler),
+      data);
 
-  g_object_set(data->volume, "volume", data->current_volume_level, NULL);
+  g_object_set(
+      data->volume,
+      "volume",
+      data->current_volume_level,
+      NULL);
 
   GstStateChangeReturn ret =
       gst_element_set_state(data->pipeline, GST_STATE_PLAYING);
   if (ret == GST_STATE_CHANGE_FAILURE)
   {
-    g_printerr("Failed to play track %d\n", data->current_track_index);
+    g_printerr(
+        "Failed to play track %d\n",
+        data->current_track_index);
     gst_element_set_state(data->pipeline, GST_STATE_NULL);
     gst_object_unref(data->pipeline);
     data->pipeline = NULL;
@@ -528,8 +609,10 @@ void load_and_play_track(CustomData *data, char **file_paths)
   }
   else
   {
-    g_print("Playing track %d: %s\n", data->current_track_index,
-            GetFileName(file_paths[data->current_track_index]));
+    g_print(
+        "Playing track %d: %s\n",
+        data->current_track_index,
+        GetFileName(file_paths[data->current_track_index]));
   }
 }
 
@@ -542,7 +625,6 @@ void print_transition_table()
   printf(" fontcolor=white, color=white];\n");
   printf(" edge [color=white, fontcolor=white];\n\n");
 
-
   for (int s = 0; s < NUM_STATES; s++)
   {
     for (int e = 0; e < NUM_EVENTS; e++)
@@ -550,8 +632,11 @@ void print_transition_table()
       int next = transition_table[s][e];
       if (next != INVALID_STATE)
       {
-        printf(" %s -> %s [label=\"%s\"];\n", state_name[s], state_name[next],
-               event_name[e]);
+        printf(
+            " %s -> %s [label=\"%s\"];\n",
+            state_name[s],
+            state_name[next],
+            event_name[e]);
       }
     }
   }
