@@ -15,15 +15,14 @@ message(STATUS "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
 # cmake -DCMAKE_BUILD_TYPE=Debug
 # cmake -DCMAKE_BUILD_TYPE=Release
 
-# not working
-#set(FETCHCONTENT_BASE_DIR "${CMAKE_SOURCE_DIR}/_deps" CACHE PATH "Base directory for FetchContent downloads")
-
-# from clay github.com/nicbarker/clay
-# Adding Raylib
+#--------- raylib ---------------#
+# from: github.com/nicbarker/clay
+# don't build the supplied examples
+# don't build the supplied example games
 include(FetchContent)
 set(FETCHCONTENT_QUIET FALSE)
-set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) # don't build the supplied examples
-set(BUILD_GAMES OFF CACHE BOOL "" FORCE) # don't build the supplied example games
+set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) 
+set(BUILD_GAMES OFF CACHE BOOL "" FORCE) 
 
 FetchContent_Declare(
         raylib
@@ -76,23 +75,3 @@ endif ()
 add_executable(${EXECUTABLE_NAME} ${SOURCES})
 target_compile_definitions(${EXECUTABLE_NAME} PRIVATE RAYGUI_IMPLEMENTATION)
 target_link_libraries(${EXECUTABLE_NAME} raylib ${GSTREAMER_LIBRARIES})
-
-# Clean only build artifacts
-#cmake --build . --target clean
-
-# Rebuild without re-downloading deps
-#cmake --build .
-
-#set(CMAKE_C_FLAGS_DEBUG "-std=c99 \
-#-g3 -Wall -Werror -Wconversion \
-#-Wdouble-promotion -fsanitize=address,undefined \
-#-Wno-unused-parameter -Wno-unused-function")
-
-#force re-download dependencies
-#rm -rf _deps
-#rm -rf build
-#mkdir build
-#cd build
-#cmake ..
-
-

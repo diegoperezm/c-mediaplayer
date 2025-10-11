@@ -98,7 +98,7 @@ int (*return_map(MediaPlayer *media_player)) [SIZE_ROWS][SIZE_COLS]
       {EL_BLANK},
       {EL_BLANK},
       {EL_BTN_PREV,
-       EL_BTN_PLAY,
+       EL_BTN_PLAY, // <- 
        EL_BTN_STOP,
        EL_BTN_NEXT,
        EL_PROGRESS_BAR,
@@ -118,7 +118,7 @@ int (*return_map(MediaPlayer *media_player)) [SIZE_ROWS][SIZE_COLS]
       {EL_BLANK},
       {EL_BLANK},
       {EL_BTN_PREV,
-       EL_BTN_PAUSE,
+       EL_BTN_PAUSE, // <-  
        EL_BTN_STOP,
        EL_BTN_NEXT,
        EL_PROGRESS_BAR,
@@ -625,20 +625,22 @@ void print_transition_table()
   printf(" fontcolor=white, color=white];\n");
   printf(" edge [color=white, fontcolor=white];\n\n");
 
-  for (int s = 0; s < NUM_STATES; s++)
+  for (int state = 0; state < NUM_STATES; state++)
   {
-    for (int e = 0; e < NUM_EVENTS; e++)
+    for (int event = 0; event < NUM_EVENTS; event++)
     {
-      int next = transition_table[s][e];
-      if (next != INVALID_STATE)
+      int next_state = transition_table[state][event];
+      if (next_state != INVALID_STATE)
       {
         printf(
             " %s -> %s [label=\"%s\"];\n",
-            state_name[s],
-            state_name[next],
-            event_name[e]);
+            state_name[state],
+            state_name[next_state],
+            event_name[event]);
       }
     }
   }
   printf("}\n");
 }
+
+

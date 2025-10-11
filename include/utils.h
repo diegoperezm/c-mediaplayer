@@ -72,11 +72,6 @@ typedef enum
 typedef struct
 {
   State currentState;
-
-  struct
-  {
-    const char *display;
-  } context;
 } MediaPlayer;
 
 typedef struct _CustomData
