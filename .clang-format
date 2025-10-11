@@ -1,0 +1,18 @@
+BasedOnStyle: LLVM
+IndentWidth: 2
+UseTab: Never
+TabWidth: 2
+
+BreakBeforeBraces: Allman
+ColumnLimit: 70
+# Break after opening parenthesis if arguments don't fit
+AllowAllArgumentsOnNextLine: false
+BinPackArguments: false
+
+# You can also control parameters in function declarations
+BinPackParameters: false
+AllowAllParametersOfDeclarationOnNextLine: false
+
+# Alignment style when broken
+AlignAfterOpenBracket: AlwaysBreak
+

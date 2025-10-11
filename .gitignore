@@ -338,7 +338,4 @@ _deps
 *.idb
 *.pdb
 
-
-
-
-
+.idea/*
